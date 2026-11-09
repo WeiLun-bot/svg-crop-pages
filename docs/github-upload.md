@@ -29,17 +29,20 @@ GitHub Pages 只提供靜態網頁。`api/github.mjs` 與 `server/github.mjs` �
 
 將包含本功能的分支部署至 Vercel Production，取得固定網址，例如 `https://<project>.vercel.app`。專案已包含 `vercel.json`，不需要額外套件或前端建置。
 
+此專案已部署到 `https://svg-crop-pages.vercel.app`，公開網址已寫入 `github-config.json`。GitHub App 金鑰尚未設定時，服務會保持登入停用。
+
 瀏覽器要能直接存取此後端，API 的寫入操作由 GitHub 登入及儲存庫權限檢查保護。預覽環境若有額外的 Vercel 登入限制，不能直接當作協作者使用的正式登入服務。
 
 ### 2. 註冊並安裝 GitHub App
 
-由儲存庫管理者在 [GitHub Developer settings → GitHub Apps → New GitHub App](https://github.com/settings/apps/new) 註冊：
+由儲存庫管理者開啟 [已預填欄位的 GitHub App 註冊頁](https://github.com/settings/apps/new?name=WeiLun%20SVG%20Crop%20Studio&url=https%3A%2F%2Fweilun-bot.github.io%2Fsvg-crop-pages%2F&callback_urls%5B%5D=https%3A%2F%2Fsvg-crop-pages.vercel.app%2Fapi%2Fgithub%2Fauth%2Fcallback&request_oauth_on_install=false&public=true&contents=write&metadata=read&webhook_active=false) 註冊：
 
 | 欄位 | 設定 |
 | --- | --- |
 | GitHub App name | 取一個未被使用的名稱，例如 `WeiLun SVG Crop Studio` |
 | Homepage URL | `https://weilun-bot.github.io/svg-crop-pages/` |
-| Callback URL | `https://<project>.vercel.app/api/github/auth/callback` |
+| Callback URL | `https://svg-crop-pages.vercel.app/api/github/auth/callback` |
+| Request user authorization during installation | 不勾選；使用者從工具按鈕開始登入 |
 | Expire user authorization tokens | 保持啟用 |
 | Webhook → Active | 取消勾選；本功能不使用 webhook |
 | Repository permissions → Contents | Read and write |
@@ -60,8 +63,10 @@ GitHub Pages 只提供靜態網頁。`api/github.mjs` 與 `server/github.mjs` �
 | `GITHUB_CLIENT_ID` | 上一步的 Client ID |
 | `GITHUB_CLIENT_SECRET` | 上一步的 Client secret，僅存後端 |
 | `SESSION_SECRET` | 32 bytes 隨機金鑰的 base64url 字串，僅存後端 |
-| `BACKEND_ORIGIN` | `https://<project>.vercel.app`，不含結尾斜線 |
-| `FRONTEND_URL` | `https://weilun-bot.github.io/svg-crop-pages/` |
+| `BACKEND_ORIGIN` | 可選，預設 `https://svg-crop-pages.vercel.app`；不含結尾斜線 |
+| `FRONTEND_URL` | 可選，預設 `https://weilun-bot.github.io/svg-crop-pages/` |
+
+已在本機專案建立 Git 忽略的 `.env`，包含產生好的 SESSION_SECRET 和上述公開網址。管理者可填入 Client ID 與 Client secret，再從 Vercel 專案的 Environment Variables 匯入這個 `.env`，套用到 Production 並重新部署。請保留現有 SESSION_SECRET，避免讓已登入的使用者失效。
 
 產生 SESSION_SECRET：
 
@@ -77,13 +82,14 @@ Client secret 與 SESSION_SECRET 不應填入前端設定、GitHub 原始碼或�
 
 ```json
 {
-  "backendOrigin": "https://<project>.vercel.app"
+  "backendOrigin": "https://svg-crop-pages.vercel.app",
+  "frontendUrl": "https://weilun-bot.github.io/svg-crop-pages/"
 }
 ```
 
 將程式與這份設定合併、推送到 `main`，等待 GitHub Pages 部署完成。前端設定只含公開網址。
 
-若直接使用 Vercel 的 `*.vercel.app` 網址開啟工具，未填 `backendOrigin` 時會使用同一網域的後端；此時需將 `FRONTEND_URL` 改為實際工具網址。網址設定只允許一個前端來源。
+此專案可從 GitHub Pages 或上述 Vercel 正式網址開啟工具。登入回傳只會送至開始登入的已允許網站，來源會綁定在加密的 OAuth 狀態中；其他網域無法接收登入結果。換用其他部署網址時，可調整 `github-config.json` 或以環境變數覆寫公開網址。
 
 ### 5. 驗證正式權限
 

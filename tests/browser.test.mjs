@@ -29,6 +29,7 @@ test('collaborator can choose an existing chapter, review replacements and uploa
         if (configMode === 'missing') { send({}, 404); return; }
         if (configMode === 'malformed') { res.writeHead(200, { 'Content-Type': 'application/json' }); res.end('{'); return; }
         if (configMode === 'invalid') { send({ backendOrigin: {} }); return; }
+        send({ backendOrigin: '' }); return;
       }
       if (assets.has(url.pathname)) {
         const [file, type] = assets.get(url.pathname);

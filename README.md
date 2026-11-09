@@ -30,7 +30,7 @@
 | 號誌設計指引 | `WeiLun-bot/road-signal-guide` | `media/` |
 | 教材素材 | `WeiLun-bot/traffic-guide` | `materials/` |
 
-此功能需先完成 [GitHub App 與後端設定](docs/github-upload.md)。`github-config.json` 預設未指定後端，因此 GitHub Pages 上的登入上傳會保持未啟用狀態。
+後端已部署到 `https://svg-crop-pages.vercel.app`，並由 `github-config.json` 連接。登入上傳仍需完成 [GitHub App 與後端金鑰設定](docs/github-upload.md)，才會開放登入。
 
 登入與上傳使用各協作者自己的 GitHub 授權；設定清單只開放上述根目錄及其子資料夾。同名檔案須明確確認取代，多人同時更新時會要求重新預覽。
 

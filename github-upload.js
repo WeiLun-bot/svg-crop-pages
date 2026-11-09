@@ -112,7 +112,7 @@
       interval = setInterval(() => { if (popup.closed) finish(Error('GitHub 登入已取消，請重試。')); }, 500);
       timeout = setTimeout(() => finish(Error('登入等候逾時，請重試。')), 5 * 60 * 1000);
       cancelLogin = () => finish(Error('GitHub 登入已取消。'));
-      popup.location.href = backend + '/api/github/auth/login?' + new URLSearchParams({ nonce });
+      popup.location.href = backend + '/api/github/auth/login?' + new URLSearchParams({ nonce, origin: location.origin });
     });
   }
   el('githubUpload').onclick = () => {

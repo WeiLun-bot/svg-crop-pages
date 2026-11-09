@@ -47,15 +47,15 @@ function fixture() {
   const request = (path, { session, body, headers = {}, env = ENV, origin = ORIGIN } = {}) => handle(new Request(BACKEND + '/api/github' + path, {
     method: body === undefined ? 'GET' : 'POST', headers: { Origin: origin, ...(session ? { Authorization: 'Bearer ' + session } : {}), ...(body !== undefined ? { 'Content-Type': 'application/json' } : {}), ...headers }, body: body === undefined ? undefined : JSON.stringify(body),
   }), env);
-  async function beginLogin() {
+  async function beginLogin(frontendOrigin = '') {
     const nonce = Buffer.alloc(32, 8).toString('base64url');
-    const start = await request('/auth/login?nonce=' + nonce);
+    const start = await request('/auth/login?nonce=' + nonce + (frontendOrigin ? '&origin=' + encodeURIComponent(frontendOrigin) : ''));
     assert.equal(start.status, 302);
     const location = new URL(start.headers.get('location'));
     return { nonce, location, cookie: start.headers.get('set-cookie').split(';')[0], cookieHeader: start.headers.get('set-cookie') };
   }
-  async function login() {
-    const flow = await beginLogin();
+  async function login(frontendOrigin = '') {
+    const flow = await beginLogin(frontendOrigin);
     const response = await request('/auth/callback?code=test-code&state=' + flow.location.searchParams.get('state'), { headers: { Cookie: flow.cookie } });
     assert.equal(response.status, 200, await response.clone().text());
     const html = await response.text();
@@ -100,6 +100,15 @@ test('cancelled OAuth returns a clear result without generating a session', asyn
   const f = fixture(); const flow = await f.beginLogin();
   const response = await f.request('/auth/callback?error=access_denied&state=' + flow.location.searchParams.get('state'), { headers: { Cookie: flow.cookie } });
   assert.equal(response.status, 200); assert.match(await response.text(), /GitHub 登入已取消/); assert.equal(f.state.calls.length, 0);
+});
+
+test('OAuth returns login only to the allowed site that opened the popup', async () => {
+  const f = fixture();
+  const login = await f.login(BACKEND);
+  assert.ok(login.html.includes(',' + JSON.stringify(BACKEND) + ');'));
+  assert.equal(login.html.includes(',' + JSON.stringify(ORIGIN) + ');'), false);
+  const bad = await f.request('/auth/login?' + new URLSearchParams({ nonce: Buffer.alloc(32, 8).toString('base64url'), origin: 'https://untrusted.example' }));
+  assert.equal(bad.status, 400); assert.equal(bad.headers.get('location'), null); assert.equal(bad.headers.get('set-cookie'), null);
 });
 
 test('OAuth state and login sessions expire', async () => {
@@ -233,5 +242,19 @@ test('Vercel rewrites route to the same handler and unconfigured services fail c
   const routed = await f.handle(new Request(BACKEND + '/api/github?route=status', { headers: { Origin: ORIGIN } }), ENV);
   assert.deepEqual(await routed.json(), { ready: true });
   const missing = await f.request('/status', { env: {} }); assert.equal(missing.status, 503);
+  assert.equal(missing.headers.get('access-control-allow-origin'), ORIGIN, 'the configured frontend can read setup errors');
   assert.equal((await missing.text()).includes('test-client-secret'), false);
+});
+
+test('public deployment origins default from site configuration while missing credentials still block login', async () => {
+  const f = fixture();
+  const env = { GITHUB_CLIENT_ID: ENV.GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET: ENV.GITHUB_CLIENT_SECRET, SESSION_SECRET: ENV.SESSION_SECRET };
+  const response = await f.request('/status', { env });
+  assert.equal(response.status, 200); assert.deepEqual(await response.json(), { ready: true });
+  const preflight = await f.handle(new Request('https://svg-crop-pages.vercel.app/api/github/upload', { method: 'OPTIONS', headers: { Origin: ORIGIN } }), {});
+  assert.equal(preflight.status, 204); assert.equal(preflight.headers.get('access-control-allow-origin'), ORIGIN);
+  const rejected = await f.request('/status', { env: {}, origin: 'https://untrusted.example' });
+  assert.equal(rejected.status, 403); assert.equal(rejected.headers.get('access-control-allow-origin'), null);
+  const disabled = await f.request('/auth/login?nonce=' + Buffer.alloc(32, 8).toString('base64url'), { env: {} });
+  assert.equal(disabled.status, 503); assert.equal(disabled.headers.get('location'), null);
 });

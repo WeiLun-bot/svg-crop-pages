@@ -1,4 +1,5 @@
 import { defaultTargets } from './targets.mjs';
+import siteConfig from '../github-config.json' with { type: 'json' };
 
 const encoder = new TextEncoder();
 const PREFIX = '/api/github';
@@ -26,14 +27,18 @@ function pathParts(path, allowEmpty = true) {
   if (parts.length > 20 || parts.some(p => !p || p === '.' || p === '..' || p.trim() !== p || /^\.git(?:hub)?$/i.test(p))) fail(400, '資料夾路徑無效。');
   return parts;
 }
-function getConfig(env) {
+function getOrigins(env) {
   let frontend, backend;
-  try { frontend = new URL(env.FRONTEND_URL); backend = new URL(env.BACKEND_ORIGIN); }
+  try { frontend = new URL(env.FRONTEND_URL || siteConfig.frontendUrl); backend = new URL(env.BACKEND_ORIGIN || siteConfig.backendOrigin); }
   catch { fail(503, 'GitHub 上傳尚未啟用，請聯絡管理者。'); }
   for (const url of [frontend, backend]) {
     if (url.username || url.password || url.search || url.hash || (url.protocol !== 'https:' && !(url.protocol === 'http:' && ['localhost', '127.0.0.1'].includes(url.hostname)))) fail(503, '登入服務網址設定無效。');
   }
   if (backend.pathname !== '/') fail(503, '登入服務網址設定無效。');
+  return { frontend, backend };
+}
+function getConfig(env) {
+  const { frontend, backend } = getOrigins(env);
   if (!env.GITHUB_CLIENT_ID || !env.GITHUB_CLIENT_SECRET || !env.SESSION_SECRET) fail(503, 'GitHub 上傳尚未啟用，請聯絡管理者。');
   if (!/^[A-Za-z0-9_-]{43}$/.test(env.SESSION_SECRET)) fail(503, '登入服務金鑰設定無效。');
   let targets;
@@ -112,10 +117,10 @@ function oauthCookie(config, value, maxAge) {
   const secure = config.backend.protocol === 'https:';
   return (secure ? '__Host-svg-oauth' : 'svg-oauth') + '=' + value + '; Path=/; HttpOnly; SameSite=Lax; Max-Age=' + maxAge + (secure ? '; Secure' : '');
 }
-function callbackPage(config, payload) {
+function callbackPage(config, payload, frontendOrigin = config.frontend.origin) {
   const nonce = random();
   const safe = JSON.stringify(payload).replaceAll('<', '\\u003c');
-  const target = JSON.stringify(config.frontend.origin);
+  const target = JSON.stringify(frontendOrigin);
   return new Response('<!doctype html><html lang="zh-Hant"><meta charset="utf-8"><title>GitHub 登入</title><body><p id="status">正在完成登入…</p><script nonce="' + nonce + '">if(window.opener){window.opener.postMessage(' + safe + ',' + target + ');document.getElementById("status").textContent="已完成，請回到裁切工作室。";window.close()}else{document.getElementById("status").textContent="請回到裁切工作室重新按 GitHub 登入。"}</script></body></html>', {
     headers: { 'Content-Type': 'text/html; charset=utf-8', 'Content-Security-Policy': "default-src 'none'; script-src 'nonce-" + nonce + "'; base-uri 'none'; frame-ancestors 'none'", 'Set-Cookie': oauthCookie(config, '', 0) },
   });
@@ -167,27 +172,31 @@ export function createHandler({ fetcher = fetch, now = () => Date.now() } = {}) 
     if (path === '/auth/login' && request.method === 'GET') {
       const clientNonce = url.searchParams.get('nonce');
       if (!/^[A-Za-z0-9_-]{32,100}$/.test(clientNonce || '')) fail(400, '請從裁切工作室開始登入。');
+      const frontendOrigin = url.searchParams.get('origin') || config.frontend.origin;
+      if (![config.frontend.origin, config.backend.origin].includes(frontendOrigin)) fail(400, '請從裁切工作室網站開始登入。');
       const state = random(), verifier = random();
       const challenge = to64(new Uint8Array(await crypto.subtle.digest('SHA-256', encoder.encode(verifier))));
       const auth = new URL('https://github.com/login/oauth/authorize');
       auth.search = new URLSearchParams({ client_id: env.GITHUB_CLIENT_ID, redirect_uri: config.callback, state, code_challenge: challenge, code_challenge_method: 'S256' });
-      return new Response(null, { status: 302, headers: { Location: auth.href, 'Set-Cookie': oauthCookie(config, await seal({ state, verifier, clientNonce, exp: now() + 600000 }, env, 'oauth'), 600) } });
+      return new Response(null, { status: 302, headers: { Location: auth.href, 'Set-Cookie': oauthCookie(config, await seal({ state, verifier, clientNonce, frontendOrigin, exp: now() + 600000 }, env, 'oauth'), 600) } });
     }
     if (path === '/auth/callback' && request.method === 'GET') {
       // A popup-bound, single-use browser cookie prevents login CSRF and carries the PKCE verifier.
       const stored = await unseal(cookie(request, config.backend.protocol === 'https:' ? '__Host-svg-oauth' : 'svg-oauth'), env, 'oauth', now);
       if (url.searchParams.get('state') !== stored.state) fail(400, 'GitHub 登入狀態不符，請重新登入。');
-      if (url.searchParams.has('error')) return callbackPage(config, { type: 'svg-github-login', nonce: stored.clientNonce, error: 'GitHub 登入已取消。' });
+      const frontendOrigin = stored.frontendOrigin || config.frontend.origin;
+      if (![config.frontend.origin, config.backend.origin].includes(frontendOrigin)) fail(400, '網站設定已變更，請重新登入。');
+      if (url.searchParams.has('error')) return callbackPage(config, { type: 'svg-github-login', nonce: stored.clientNonce, error: 'GitHub 登入已取消。' }, frontendOrigin);
       const code = url.searchParams.get('code'); if (!code || code.length > 500) fail(400, '缺少 GitHub 登入驗證碼。');
       let tokenResponse;
       try { tokenResponse = await fetcher('https://github.com/login/oauth/access_token', { method: 'POST', signal: AbortSignal.timeout(15000), headers: { Accept: 'application/json', 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams({ client_id: env.GITHUB_CLIENT_ID, client_secret: env.GITHUB_CLIENT_SECRET, code, redirect_uri: config.callback, code_verifier: stored.verifier }) }); }
       catch { fail(502, '暫時無法完成 GitHub 登入，請重試。'); }
       const data = await tokenResponse.json();
-      if (!tokenResponse.ok || !data.access_token || data.token_type?.toLowerCase() !== 'bearer') return callbackPage(config, { type: 'svg-github-login', nonce: stored.clientNonce, error: 'GitHub 授權未完成，請重新登入。' });
+      if (!tokenResponse.ok || !data.access_token || data.token_type?.toLowerCase() !== 'bearer') return callbackPage(config, { type: 'svg-github-login', nonce: stored.clientNonce, error: 'GitHub 授權未完成，請重新登入。' }, frontendOrigin);
       const user = await github(data.access_token, '/user');
       const seconds = Math.min(SESSION_SECONDS, Number(data.expires_in) || SESSION_SECONDS);
       const session = await seal({ token: data.access_token, user: { id: user.id, login: user.login }, exp: now() + seconds * 1000 }, env, 'session');
-      return callbackPage(config, { type: 'svg-github-login', nonce: stored.clientNonce, session, expiresAt: now() + seconds * 1000 });
+      return callbackPage(config, { type: 'svg-github-login', nonce: stored.clientNonce, session, expiresAt: now() + seconds * 1000 }, frontendOrigin);
     }
     const authorization = request.headers.get('authorization');
     if (!authorization?.startsWith('Bearer ')) fail(401, '請先登入 GitHub。');
@@ -258,15 +267,15 @@ export function createHandler({ fetcher = fetch, now = () => Date.now() } = {}) 
     fail(404, '找不到這個操作。');
   }
   return async function handle(request, env) {
-    let response, config;
+    let response, origins;
     try {
-      config = getConfig(env);
+      origins = getOrigins(env);
       const url = new URL(request.url);
       const origin = request.headers.get('origin');
-      if (origin && origin !== config.frontend.origin && origin !== config.backend.origin) fail(403, '不允許此網站存取上傳服務。');
+      if (origin && origin !== origins.frontend.origin && origin !== origins.backend.origin) fail(403, '不允許此網站存取上傳服務。');
       const path = url.pathname.startsWith(PREFIX + '/') ? url.pathname.slice(PREFIX.length) : '/' + (url.searchParams.get('route') || 'status');
       if (request.method === 'OPTIONS') response = new Response(null, { status: 204 });
-      else response = await route(request, env, config, path, url);
+      else response = await route(request, env, getConfig(env), path, url);
     } catch (error) {
       response = json({ error: error instanceof HttpError ? error.message : '服務暫時無法完成操作，請稍後重試。' }, error instanceof HttpError ? error.status : 500);
     }
@@ -275,7 +284,7 @@ export function createHandler({ fetcher = fetch, now = () => Date.now() } = {}) 
     headers.set('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
     headers.set('Vary', 'Origin');
     const origin = request.headers.get('origin');
-    if (config && [config.frontend.origin, config.backend.origin].includes(origin)) {
+    if (origins && [origins.frontend.origin, origins.backend.origin].includes(origin)) {
       headers.set('Access-Control-Allow-Origin', origin);
       headers.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
       headers.set('Access-Control-Allow-Headers', 'Authorization, Content-Type');
