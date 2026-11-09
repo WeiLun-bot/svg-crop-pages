@@ -149,7 +149,7 @@ body{background:#e9eff2;color:var(--ink);overflow:hidden;font-size:13px}
 /* v13: no redundant Apply button; short, readable auto-commit hint */
 .autosave-field-hint{font-size:10.5px;color:#66838b;line-height:1.5;margin:5px 0 1px;overflow-wrap:anywhere}
 .field>input:focus-visible{outline:2px solid #65b6ac;outline-offset:1px;border-color:#16867e}
-</style></head>
+</style><link rel="stylesheet" href="github-upload.css"></head>
 <body>
 <header class="topbar">
   <div class="brand"><div class="brand-mark">◩</div><div><h1>SVG 裁切工作室 <span class="tag">v14</span></h1><small>可調工作區 · 矩形裁切 · 圖層管理</small></div></div>
@@ -173,6 +173,7 @@ body{background:#e9eff2;color:var(--ink);overflow:hidden;font-size:13px}
     <button id="chooseFolder" title="選擇／變更輸出資料夾（Chrome / Edge）">📁 選擇位置</button>
     <button id="saveFolder" class="primary" title="將所有裁切 SVG 與設定檔儲存至目前資料夾；首次使用會先要求選擇資料夾">儲存全部</button>
     <button id="exportZip" title="將 ZIP 儲存至選定資料夾">儲存 ZIP</button>
+    <button id="githubUpload" title="登入 GitHub，將裁切素材上傳至指引或教材的指定資料夾">GitHub 上傳</button>
     <span class="folder-label" id="folderLabel" title="尚未選擇輸出資料夾">首次儲存時選擇資料夾</span>
   </div>
   <div class="tool-group tool-panels"><span class="tool-group-label">面板</span>
@@ -941,4 +942,21 @@ try{
 for(const id of accordionIds){$(id).addEventListener('toggle',()=>{
   try{const value={};for(const key of accordionIds)value[key]=$(key).open;localStorage.setItem(ACCORDION_KEY,JSON.stringify(value))}catch(e){}
 })}
-</script></body></html>
+</script>
+<dialog id="githubDialog" class="github-dialog" aria-labelledby="githubTitle">
+  <div class="github-heading"><div><h2 id="githubTitle">上傳到指引與教材</h2><p>將裁切圖與設定存進 GitHub，保留每次更新紀錄。</p></div><button type="button" id="githubClose" aria-label="關閉上傳視窗">✕</button></div>
+  <p id="githubStatus" class="github-status" role="status" aria-live="polite">正在連線…</p>
+  <div class="github-account"><span id="githubAccount">尚未登入</span><button type="button" id="githubSignIn" class="primary" disabled>使用 GitHub 登入</button><button type="button" id="githubSignOut" hidden>登出</button></div>
+  <fieldset id="githubDestination" disabled>
+    <legend>儲存位置</legend>
+    <label for="githubTarget">指引／教材</label><select id="githubTarget"><option value="">請先登入</option></select>
+    <div class="github-path"><code id="githubPath">尚未選擇位置</code></div>
+    <div class="github-folders"><button type="button" id="githubParent" disabled>上一層</button><select id="githubFolder" aria-label="進入子資料夾"><option value="">選擇子資料夾…</option></select></div>
+    <p class="github-help">上方顯示的資料夾就是本次上傳位置。</p>
+  </fieldset>
+  <div class="github-review"><button type="button" id="githubPreview" disabled>預覽本次上傳</button><p class="github-help">上傳所有裁切 SVG 與原圖對應的設定 JSON。原始 SVG 由你另外管理。</p><ul id="githubFiles" class="github-files" aria-label="本次檔案清單"></ul></div>
+  <label id="githubOverwriteRow" class="github-overwrite" hidden><input type="checkbox" id="githubOverwrite">我確認取代清單中的同名檔案。</label>
+  <div class="github-footer"><a id="githubResult" target="_blank" rel="noopener noreferrer" hidden>查看此次 GitHub 更新 ↗</a><button type="button" id="githubConfirm" class="primary" disabled>確認上傳</button></div>
+</dialog>
+<script src="github-upload.js"></script>
+</body></html>

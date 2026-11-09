@@ -1,0 +1,14 @@
+.github-dialog{box-sizing:border-box;width:min(620px,94vw);max-height:90dvh;overflow:auto;border:1px solid #b7d1d2;border-radius:12px;padding:22px;color:#25434e;background:#fff;box-shadow:0 20px 80px #12383d40;font:13px system-ui,"Microsoft JhengHei",sans-serif}
+.github-dialog::backdrop{background:#102b3766;backdrop-filter:blur(2px)}
+.github-dialog [hidden]{display:none!important}
+.github-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.github-heading h2{font-size:19px;margin:0 0 6px}.github-heading p{margin:0;color:#64808a;line-height:1.5}.github-heading>button{border:0;padding:3px 7px}
+.github-status{padding:10px 12px;border-radius:7px;line-height:1.6;background:#edf6f4;white-space:pre-line;overflow-wrap:anywhere}.github-status.error{background:#fff1eb;color:#974c2d}
+.github-account{display:flex;align-items:center;flex-wrap:wrap;gap:9px;margin:14px 0}.github-account>span{flex:1;font-weight:600}
+.github-dialog fieldset{border:1px solid #d9e6e8;border-radius:8px;margin:14px 0;padding:13px}.github-dialog legend{font-weight:650;padding:0 6px}.github-dialog label:not(.github-overwrite){display:block;font-size:12px;margin-bottom:5px}
+.github-dialog select{box-sizing:border-box;border:1px solid #bed1d6;border-radius:6px;background:white;color:#25434e;padding:7px;font:inherit;min-width:0;width:100%}.github-dialog select:disabled{background:#f6f8f8;color:#87999f}
+.github-path{margin:10px 0;padding:9px;background:#f4f8f8;border-radius:6px;overflow-wrap:anywhere;line-height:1.5;font-size:12px}.github-path code{font-family:ui-monospace,monospace}
+.github-folders{display:flex;gap:7px}.github-folders>button{white-space:nowrap}.github-help{font-size:11.5px;color:#6d848b;line-height:1.6;margin:9px 0 0}.github-review>button{width:100%}
+.github-files{list-style:none;padding:0;margin:12px 0 0;max-height:230px;overflow:auto}.github-files:empty{display:none}.github-files li{display:flex;align-items:center;gap:8px;padding:8px 3px;border-bottom:1px solid #e7eeee}.github-files .github-file-name{flex:1;overflow-wrap:anywhere;font-size:12px}.github-file-state{font-size:11px;white-space:nowrap;color:#087771;background:#e4f5ef;border-radius:4px;padding:3px 5px}.github-file-state.update{color:#965a13;background:#fff0d8}.github-file-state.unchanged{color:#789097;background:#f0f4f5}
+.github-overwrite{display:flex;align-items:flex-start;gap:7px;background:#fff6e8;padding:10px;border-radius:6px;margin-top:12px;line-height:1.5}.github-overwrite input{accent-color:#0b7875;margin-top:3px}
+.github-footer{display:flex;justify-content:flex-end;align-items:center;flex-wrap:wrap;gap:12px;margin-top:17px}.github-footer a{color:#087771;flex:1;font-size:12px}.github-footer button{padding:8px 16px}
+.github-dialog button:focus-visible,.github-dialog select:focus-visible{outline:2px solid #0b7875;outline-offset:2px}
