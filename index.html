@@ -1,0 +1,944 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SVG 裁切工作室 v14 · 統一資料夾儲存</title>
+<style>
+:root{font-family:system-ui,"Microsoft JhengHei","Noto Sans TC",sans-serif;color:#233d46;background:#eaf0f3}*{box-sizing:border-box}body{margin:0}button,input,select{font:inherit}button,.upload{border:1px solid #bfd0d7;background:white;color:#25434e;border-radius:7px;cursor:pointer;padding:7px 11px}button:hover,.upload:hover{background:#e5f3f2}button.on,button.primary{background:#0b7875;color:white;border-color:#0b7875}button:disabled{opacity:.5;cursor:not-allowed}input[type=file]{display:none}button.subtle{border:0;background:transparent;padding:4px 7px}header{background:#173f49;color:white;padding:13px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px}h1{font-size:19px;margin:0 0 2px}header small{color:#c0dfe0;font-size:12px}#filename{font-size:12px;max-width:37%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.tag{font-size:10px;border-radius:5px;padding:3px 6px;background:#dbece9;color:#26565d}header .tag{vertical-align:3px}.toolbar{background:white;display:flex;flex-wrap:wrap;gap:7px;padding:10px 14px;border-bottom:1px solid #d5e1e5;align-items:center}.compact-toggle{font-size:12px;color:#24555d;display:flex;align-items:center;gap:5px;padding:6px 9px;background:#e9f5f3;border-radius:7px;white-space:nowrap}.compact-toggle input{accent-color:#0b7875;width:15px;height:15px}.separator{height:25px;border-left:1px solid #d3e0e4;margin:0 3px}.layout{height:calc(100vh - 118px);min-height:620px;display:grid;grid-template-columns:275px minmax(380px,1fr) 340px;gap:10px;padding:10px}.panel{min-height:0;display:flex;flex-direction:column;border:1px solid #d5e1e5;border-radius:10px;background:white;overflow:hidden}.head{padding:11px 12px;border-bottom:1px solid #e3e9ec;font-weight:700;display:flex;align-items:center;justify-content:space-between}.panel-scroll{padding:10px 12px;overflow:auto;flex:1;min-height:0}.hint{font-size:12px;color:#55747d;line-height:1.6}.mini{font-size:11px;color:#64808a}.split{display:flex;align-items:center;gap:6px}.split>*{flex:1}.split button{padding:5px 7px;font-size:12px}.field{display:block;font-size:12px;margin:8px 0;color:#3f5e68}.field>input,.field>select{margin-top:4px;display:block;width:100%;border:1px solid #bfd0d7;border-radius:5px;padding:6px;background:white;color:#243e47}.field input[type=range]{padding:0;accent-color:#0b7875}.grid4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}#search{width:100%;padding:7px 8px;border:1px solid #cad9df;border-radius:6px}.tree{font-size:12px;margin-top:9px}.tree-row{display:flex;align-items:center;gap:3px;border-radius:5px;min-height:26px;padding:1px 3px}.tree-row:hover{background:#ecf5f5}.tree-row.picked{background:#d7f2ed}.tree-row.hidden-layer{color:#99a7ad}.tree-row input{accent-color:#0b827f;width:15px;height:15px;flex:none;margin:0 2px}.twist{width:17px;text-align:center;flex:none;cursor:pointer;color:#587681}.treename{border:0!important;background:transparent!important;text-align:left;font-size:12px;padding:3px 2px!important;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0}.type{font-size:10px;color:#97a6ac;flex:none}.branch{margin-left:13px;padding-left:8px;border-left:1px solid #e2eaed}.viewer{position:relative;flex:1;overflow:hidden;touch-action:none;background-color:#f0f4f6;background-image:linear-gradient(45deg,#dfe8ed 25%,transparent 25%),linear-gradient(-45deg,#dfe8ed 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#dfe8ed 75%),linear-gradient(-45deg,transparent 75%,#dfe8ed 75%);background-size:22px 22px;background-position:0 0,0 11px,11px -11px,-11px 0;cursor:crosshair}.viewer.object-view{background-color:#839198;background-image:linear-gradient(45deg,#728087 25%,transparent 25%),linear-gradient(-45deg,#728087 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#728087 75%),linear-gradient(-45deg,transparent 75%,#728087 75%)}.stage{position:absolute;transform-origin:0 0;user-select:none}.stage>svg{display:block;position:absolute;inset:0;width:100%;height:100%}.stage .measure{opacity:0;pointer-events:none;z-index:-1}.stage .art{z-index:1}.stage .overlay{pointer-events:none;overflow:visible;z-index:2}.overlay .crop{stroke:#009689;stroke-width:2;stroke-dasharray:7 4;fill:#06b6a4;fill-opacity:.08;vector-effect:non-scaling-stroke}.overlay .active{stroke:#007a74;stroke-width:2.5;fill-opacity:.13;stroke-dasharray:none}.overlay .handle{fill:#fff;stroke:#007b75;stroke-width:1.5;vector-effect:non-scaling-stroke}.overlay .target{fill:none;stroke:#e69b19;stroke-width:2;stroke-dasharray:5 3;vector-effect:non-scaling-stroke}.overlay .idlabel{font:16px sans-serif;paint-order:stroke;stroke:white;stroke-width:4px;fill:#006c67}.status{padding:8px 12px;border-top:1px solid #dbe6ea;font-size:11px;color:#55717b;min-height:32px}.card{border:1px solid #d5e3e7;padding:9px 10px;border-radius:8px;margin-top:7px}.card.current{border-color:#0b8079;background:#f1fbf8}.card strong{font-size:12px}.card p{margin:4px 0 6px;color:#627c85;font-size:11px}.card-actions{display:flex;gap:5px}.card-actions button{font-size:11px;padding:4px 6px}.line{height:1px;background:#e0e9ec;margin:10px 0}.preview{height:155px;border:1px solid #d3e2e8;border-radius:5px;background:white;display:flex;justify-content:center;align-items:center;overflow:hidden}.preview.object-view{background:#839198}.preview svg{width:100%;height:100%}.rotate-row{display:flex;align-items:center;gap:6px}.rotate-row input[type=number]{width:72px;border:1px solid #bfd0d7;border-radius:5px;padding:5px}.rotate-row input[type=range]{flex:1;min-width:0;accent-color:#0b7875}.rotate-row button{padding:5px}.narrow{font-size:11px;padding:5px 7px}.island{border:1px solid #e0e9ed;border-radius:7px;padding:9px;margin:9px 0}.island>strong{font-size:12px}.foot{padding:8px 11px;border-top:1px solid #e2e9ed}.notice{padding:6px;border:1px solid #e5b865;background:#fff6e6;color:#865b12;border-radius:5px;font-size:11px;margin:6px 0;display:none}#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#163942;color:white;border-radius:7px;padding:10px 14px;z-index:10;display:none;font-size:12px;max-width:80vw}@media(max-width:1100px){.layout{grid-template-columns:230px minmax(300px,1fr) 295px;gap:6px;padding:6px}}@media(max-width:790px){.layout{display:flex;flex-direction:column;height:auto}.panel{min-height:250px}.viewer{height:460px;flex:auto}.panel-scroll{max-height:500px}}@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto}}
+
+/* 選取裁切框後顯示在框旁的數值編輯列；固定於瀏覽器像素，不隨 SVG 缩放 */
+.viewer.hand-mode{cursor:grab!important}
+.viewer.hand-mode.panning,.viewer.panning{cursor:grabbing!important}
+.size-overlay{position:absolute;z-index:9;display:flex;align-items:center;gap:5px;padding:6px 8px;border:1px solid #83bcb7;border-radius:7px;background:rgba(255,255,255,.97);box-shadow:0 2px 10px #12383d30;font-size:12px;color:#245259;white-space:nowrap;pointer-events:auto;user-select:none}
+.size-overlay[hidden]{display:none!important}
+.size-title{font-weight:700;margin-right:3px;color:#056d69}
+.size-overlay label{display:flex;align-items:center;gap:4px;font-weight:600}
+.size-overlay input{font-size:12px;width:68px;min-width:0;border:1px solid #a6c2c7;border-radius:4px;padding:4px 5px;background:#fff;color:#1d464c;font-variant-numeric:tabular-nums}
+.raster-section{margin-top:11px;padding:9px;border:1px solid #bedbd9;background:#f1faf8;border-radius:7px;font-size:12px}
+.raster-section>strong{font-size:12px;color:#0e615e}
+.raster-row{display:flex;align-items:center;gap:7px;margin:7px 0;padding:6px 4px;border-radius:5px;background:#fff;border:1px solid #dce9e7}
+.raster-row input{accent-color:#0b7875;flex:none}
+.raster-row>span{font-size:11px;color:#3a626b;overflow-wrap:anywhere;line-height:1.4}
+.size-overlay input:focus{outline:2px solid #0b7875;outline-offset:1px}
+.size-unit{font-size:10px;color:#67838a}.size-times{color:#9aafb7}
+@media(max-width:790px){.size-title{display:none}.size-overlay{padding:4px 5px}.size-overlay input{width:61px}}
+
+.folder-label{font-size:11px;color:#226a63;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
+#chooseFolder{border-color:#9ac4c0}
+#saveFolder:disabled,#saveSingleFolder:disabled{opacity:.55;cursor:not-allowed}
+button[hidden],select[hidden]{display:none!important}
+.selection-box{margin:10px 0;border:1px solid #bcd9d5;background:#f0faf7;border-radius:7px;padding:9px;display:flex;flex-direction:column;gap:5px}
+.selection-box[hidden]{display:none}.selection-box strong{font-size:12px;color:#06655f;overflow-wrap:anywhere}
+.selection-box .hide-selection{background:#fff4f2;border-color:#e8bdb5;color:#9f4639;width:100%;font-size:12px}
+.raster-section summary{cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:6px;list-style:none;user-select:none}
+.raster-section summary::-webkit-details-marker{display:none}
+.raster-section summary::before{content:'▸';font-size:12px;flex:none;color:#116d69}
+.raster-section[open] summary::before{content:'▾'}
+.raster-section summary strong{flex:1}.raster-section summary .mini{font-size:10px;text-align:right;flex:none}
+.raster-section:not([open]){padding-bottom:9px}
+.restore-section{border:1px solid #d5e3e7;border-radius:8px;padding:8px 9px;margin:9px 0;background:#f9fcfc}.restore-section>summary{cursor:pointer;display:flex;gap:8px;align-items:center;list-style:none;font-size:12px;color:#234f53}.restore-section>summary::-webkit-details-marker{display:none}.restore-section>summary::before{content:'▾';font-size:13px;color:#617982}.restore-section:not([open])>summary::before{content:'▸'}.restore-section>summary strong{flex:1}.hidden-list{max-height:190px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;margin-top:6px}.hidden-entry{display:flex;align-items:center;gap:7px;border:1px solid #dfebee;border-radius:7px;background:#fff;padding:6px}.hidden-entry .name-wrap{flex:1;min-width:0}.hidden-entry .name-wrap strong{display:block;font-size:12px;overflow-wrap:anywhere}.hidden-entry .name-wrap small{display:block;font-size:10px;color:#607e84;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.hidden-entry button{flex:none;padding:4px 8px;font-size:12px;border-color:#9bcac4;color:#006f67}.hidden-entry button:hover{background:#e1f6f0}.restore-section p.mini{margin:8px 0 0}.selection-box .split .hide-selection{margin-top:0;min-width:0}.selection-box .split #restoreTarget{margin-top:0}
+
+/* v10 — compact professional workspace, draggable/dockable panels */
+:root{--left-w:275px;--right-w:324px;--bar-h:101px;--border:#dbe5e9;--ink:#213c43;--accent:#0d7672}
+body{background:#e9eff2;color:var(--ink);overflow:hidden;font-size:13px}
+.topbar{height:47px;padding:7px 15px;background:#183d45;gap:16px}
+.brand{display:flex;align-items:center;gap:9px;min-width:200px}.brand-mark{background:#2a626a;color:#dff8f3;width:29px;height:29px;border:1px solid #548288;border-radius:7px;display:grid;place-items:center;font-size:19px}.brand h1{font-size:15px;line-height:1.2;margin:0}.brand small{font-size:10px;color:#a7ced1;line-height:1.2}.topbar .tag{font-size:9px;padding:2px 5px;background:#335c60;color:#e5f5f2;vertical-align:1px}.topbar #filename{font-size:11px;color:#c0dee0;max-width:46%}
+.toolbar{padding:5px 9px;gap:5px;min-height:43px;flex-wrap:wrap;background:#fff;box-shadow:0 1px 4px #1938460a;align-content:center}.tool-group{display:flex;align-items:center;gap:4px;border-right:1px solid #dbe6e9;padding-right:9px;margin-right:3px;min-height:29px}.tool-group:last-child{border-right:0;padding-right:0;margin-right:0}.tool-group-label{font-size:10px;letter-spacing:.03em;font-weight:650;color:#8b9da4;margin-right:3px;white-space:nowrap}.toolbar button,.toolbar .upload{font-size:11.5px;padding:5px 8px;border-radius:6px;line-height:1.15;white-space:nowrap;min-height:28px}.toolbar .primary{background:#0a7973;border-color:#0a7973}.toolbar .compact-toggle{border:1px solid #d5e6e1;font-size:11px;padding:4px 6px;gap:3px;background:#f4faf8;min-height:28px}.toolbar .compact-toggle input{height:13px;width:13px}.toolbar .folder-label{font-size:10px;max-width:160px;margin-left:2px}.tool-panels{margin-left:auto}.pane-visibility:not(.on){background:#f4f7f8;color:#708791}.toolbar #resetWorkspace{background:#f5f7f7}
+.layout{height:calc(100dvh - var(--bar-h));min-height:0;display:grid;grid-template-columns:minmax(0,var(--left-w)) 6px minmax(0,1fr) 6px minmax(0,var(--right-w));gap:0;padding:8px 9px;align-items:stretch;position:relative;overflow:hidden}
+#paneLayers{grid-column:1;grid-row:1}#splitLeft{grid-column:2;grid-row:1}#paneCanvas{grid-column:3;grid-row:1}#splitRight{grid-column:4;grid-row:1}#paneSettings{grid-column:5;grid-row:1}
+.divider-handle{position:relative;min-width:6px;cursor:col-resize;z-index:5;touch-action:none}.divider-handle::after{content:'';position:absolute;top:40%;bottom:40%;left:2px;width:2px;border-radius:9px;background:#afc3c9}.divider-handle:hover::after,.divider-handle.is-dragging::after{top:25%;bottom:25%;background:#15847b;width:3px;left:2px}
+.layout.is-layers-inactive{grid-template-columns:0 0 minmax(0,1fr) 6px minmax(0,var(--right-w))}.layout.is-settings-inactive{grid-template-columns:minmax(0,var(--left-w)) 6px minmax(0,1fr) 0 0}.layout.is-layers-inactive.is-settings-inactive{grid-template-columns:0 0 minmax(0,1fr) 0 0}
+.layout.is-layers-inactive #splitLeft,.layout.is-settings-inactive #splitRight{pointer-events:none;visibility:hidden}
+.panel{border:1px solid #d5e0e4;border-radius:8px;box-shadow:0 1px 3px #173f490e;min-width:0;margin:0 3px;background:#fff;overflow:hidden}
+.panel .head{height:38px;padding:7px 10px;flex:none;cursor:grab;user-select:none;touch-action:none;border-bottom:1px solid #e0e8eb;font-weight:650;font-size:12.5px;gap:6px;background:linear-gradient(180deg,#fff,#fafcfc)}.panel .head:active{cursor:grabbing}.pane-title{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.pane-head-actions{display:flex;gap:3px;align-items:center;flex:none}.pane-head-actions .tag{font-size:9.5px;padding:2px 5px;font-weight:550;margin-right:4px}.pane-icon{border:0;background:transparent;color:#718b93;min-width:25px;height:24px;border-radius:5px;padding:3px;font-size:13px}.pane-icon:hover{background:#e6f2f0;color:#176b67}.panel .panel-scroll{padding:9px 10px;font-size:12px}
+.panel.floating{position:fixed;z-index:60;display:flex!important;min-height:240px;min-width:240px;max-width:96vw;max-height:93dvh;resize:both;overflow:hidden;margin:0;box-shadow:0 14px 45px #19343e40;border-color:#a5c8c7;border-radius:9px}.panel.floating .head{background:#eaf6f3;border-bottom-color:#c9ddda}.panel.floating.is-active{z-index:70}.panel.floating .pane-icon[data-undock]{color:#096e69;background:#d2eae5}
+.panel.panel-hidden{display:none!important}.canvas-placeholder{grid-column:3;grid-row:1;border:1px dashed #b5c9ce;background:#f7fbfc;color:#617b83;border-radius:8px;align-items:center;justify-content:center;flex-direction:column;gap:12px;font-size:13px}.canvas-placeholder:not([hidden]){display:flex}.canvas-placeholder button{font-size:12px}
+.status{padding:5px 10px;min-height:26px;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#69808a}.viewer{background-size:18px 18px;background-position:0 0,0 9px,9px -9px,-9px 0}.size-overlay{font-size:11px;padding:4px 6px;gap:4px;border-radius:6px}.size-overlay input{width:65px;padding:3px 4px}.size-title{font-size:10px}
+#search{padding:6px 8px;font-size:12px;height:32px}.hint{font-size:11px;color:#687e85;line-height:1.65;margin:7px 0}.tree{font-size:11.5px}.tree-row{min-height:25px}.treename{font-size:11.5px}.selection-box{margin:7px 0;padding:8px}.restore-section,.raster-section{padding:7px 8px;margin:7px 0}
+#paneSettings .panel-scroll{padding:9px 10px}.crop-collection{border:1px solid #e3ebee;background:#fafcfc;border-radius:7px;padding:7px 8px;margin-bottom:11px}.section-heading{display:flex;align-items:center;justify-content:space-between;gap:4px;color:#30545d;font-size:11.5px}.section-heading small{font-size:10px;color:#879ca5}.crop-collection #list{max-height:170px;overflow-y:auto;margin-top:4px}.crop-collection .card{padding:6px 7px;margin-top:5px;border-radius:5px;background:white}.card.current{background:#eef8f6}.card strong{font-size:11.5px}.card p{font-size:10px;line-height:1.4;margin:2px 0 4px}.card-actions{gap:4px}.card-actions button{font-size:10px;padding:3px 6px;line-height:1.2}.field{font-size:11.5px;margin:6px 0}.field>input,.field>select{font-size:12px;padding:5px 7px}.island{margin:7px 0;border-radius:6px;padding:8px}.island>strong{font-size:11.5px}.rotate-row{gap:4px}.rotate-row input[type=number]{width:56px;font-size:11px}.rotate-row button{font-size:10px;padding:4px 6px}.grid4{gap:5px}.grid4 input{min-width:0}.split{gap:5px}.split button{font-size:11px;padding:5px 5px}.preview-details{border:1px solid #dfe9ed;border-radius:6px;padding:6px 8px;margin-top:8px}.preview-details summary{cursor:pointer;font-weight:650;font-size:11.5px;color:#3a5b65;margin:0 0 6px}.preview-details:not([open]) summary{margin-bottom:0}.preview{height:140px}.foot{padding:5px 9px}.foot .mini{font-size:9.7px;color:#8a9ca3}
+#toast{z-index:140;bottom:15px;font-size:11px;padding:7px 11px}
+@media(max-width:1120px){.tool-group-label{display:none}.toolbar{gap:3px}.toolbar button,.toolbar .upload{padding:5px 6px}.layout{--left-w:245px;--right-w:305px}}
+@media(max-width:820px){body{overflow:auto}.topbar #filename{max-width:28%}.layout{height:calc(100dvh - var(--bar-h));min-height:400px;display:grid;grid-template-columns:minmax(0,var(--left-w)) 6px minmax(0,1fr) 6px minmax(0,var(--right-w))}.panel{min-height:0}.viewer{height:auto;flex:1}.panel-scroll{max-height:none}.toolbar .folder-label{display:none}}
+
+
+.float-resizer{display:none;position:absolute;right:0;bottom:0;width:23px;height:23px;z-index:85;cursor:nwse-resize;touch-action:none;background:linear-gradient(135deg,transparent 55%,#83aba8 56%,#83aba8 62%,transparent 63%),linear-gradient(135deg,transparent 72%,#83aba8 73%,#83aba8 79%,transparent 80%);background-size:100% 100%;border-bottom-right-radius:7px}
+.panel.floating .float-resizer{display:block}
+.toolbar #dockCanvasTop{background:#eaf7f4;color:#086860;border-color:#8fcbc2;font-weight:650}
+.help-fold{padding:6px 4px;margin:5px 0;color:#678189}.help-fold summary{font-size:11px;cursor:pointer;list-style:none;display:flex;align-items:center;gap:5px}.help-fold summary:before{content:"▸"}.help-fold[open] summary:before{content:"▾"}.help-fold .hint{font-size:11px;padding:3px 6px 2px;margin:5px 0 0;background:#f5f9fa;border-radius:5px}
+/* v11: columns remain readable at any docked or floating panel width */
+.panel{container-type:inline-size}
+.panel .panel-scroll,.panel .head,.panel .card,.panel .island,.panel .selection-box,.panel .crop-collection{min-width:0}
+.panel .head .pane-title{min-width:0;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.panel .split{flex-wrap:wrap;align-items:stretch}
+.panel .split>*{flex:1 1 85px;min-width:0;max-width:100%;overflow-wrap:anywhere;white-space:normal;line-height:1.3}
+.panel .field,.panel .field>input,.panel .field>select{min-width:0;max-width:100%}
+.panel .grid4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.panel .card-actions{flex-wrap:wrap;min-width:0}
+.panel .card-actions button{flex:1 1 52px;white-space:normal}
+.panel .card strong,.panel .card p,.panel .hint,.panel .mini,.panel .section-heading,.panel .restore-section summary,.panel .selection-box{overflow-wrap:anywhere;min-width:0}
+.panel .section-heading small{max-width:50%;text-align:right}
+.panel .rotate-row{min-width:0;flex-wrap:wrap}
+.panel .rotate-row input[type=range]{min-width:45px;flex:1 1 75px}
+.panel .rotate-row input[type=number]{width:63px;min-width:0;flex:0 1 63px}
+.panel .tree-row,.panel .raster-row{min-width:0;max-width:100%}
+.panel .tree-row .treename{min-width:0;text-overflow:ellipsis}
+.panel .tree-row .type{max-width:28px;overflow:hidden;text-overflow:ellipsis}
+.panel .branch{margin-left:8px;padding-left:5px}
+.panel .grid4 .field{overflow:hidden}
+.panel .grid4 .field input{width:100%;min-width:0}
+@container (max-width:290px){
+ .panel .grid4{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .panel .split>*{flex-basis:calc(50% - 5px)}
+ .panel .card-actions button{flex-basis:calc(50% - 5px)}
+ .panel .section-heading small{display:none}
+ .panel .pane-head-actions .tag{display:none}
+ .panel .panel-scroll{padding-inline:7px!important}
+}
+@container (max-width:210px){
+ .panel .split>*{flex-basis:100%}
+ .panel .rotate-row input[type=range]{flex-basis:100%}
+ .panel .branch{margin-left:4px;padding-left:3px}
+ .panel .tree-row .type{display:none}
+ .panel .pane-icon{min-width:20px;width:20px;padding:2px}
+ .panel .pane-head-actions{gap:0}
+}
+.rotation-global{border:1px solid #bddbd8;background:#f0faf8;border-radius:7px;padding:9px;margin:0 0 9px;min-width:0}
+.rotation-global>strong{color:#135d59;font-size:12px}
+.rotation-global .rotate-row{margin-top:8px}
+.rotation-override{display:flex;align-items:flex-start;gap:7px;font-size:11px;line-height:1.5;color:#345c64;margin-bottom:6px;cursor:pointer}
+.rotation-override input{accent-color:#0b7875;margin:2px 0 0;flex:none}
+.rotation-override span{overflow-wrap:anywhere;min-width:0}
+.crop-angle-controls[hidden]{display:none!important}
+.crop-angle-disabled{opacity:.5;pointer-events:none}
+.rotation-note{font-size:10px;line-height:1.45;color:#527e83;overflow-wrap:anywhere;margin-top:6px}
+.raster-title-short{display:none}
+@container (max-width:290px){.raster-title-full{display:none}.raster-title-short{display:inline}.raster-section summary .mini{display:none}.raster-section summary strong{min-width:0;overflow-wrap:normal;white-space:nowrap}}
+
+/* v12 - right panel accordions; compact toolbar alignment */
+.toolbar .tool-group{align-items:center}
+.toolbar .upload,.toolbar button{display:inline-flex;align-items:center;justify-content:center;vertical-align:middle;box-sizing:border-box;min-height:29px;line-height:1.2;padding:5px 9px;margin:0;text-align:center}
+.toolbar .upload{white-space:nowrap;cursor:pointer;user-select:none}
+.toolbar .upload input[type=file]{display:none}
+.settings-accordion{border:1px solid #dee8eb;border-radius:8px;background:#fff;min-width:0;margin:0 0 8px;padding:0;overflow:clip}
+.settings-accordion > summary{list-style:none;display:flex;align-items:center;gap:7px;padding:10px 11px;cursor:pointer;user-select:none;color:#285158;font-size:12px;line-height:1.35;min-height:38px}
+.settings-accordion > summary::-webkit-details-marker{display:none}
+.settings-accordion > summary::before{content:'▸';color:#597e86;font-size:13px;flex:none;transform:translateY(-.5px)}
+.settings-accordion[open] > summary::before{content:'▾'}
+.settings-accordion > summary:hover{background:#f0f7f7}
+.settings-accordion[open] > summary{border-bottom:1px solid #e0ebed;background:#f9fcfc}
+.settings-accordion .accord-title{font-weight:680;min-width:0;flex:1;overflow-wrap:normal}
+.settings-accordion .accord-value{flex:none;color:#087771;font-size:11px;font-variant-numeric:tabular-nums;background:#dff1ed;border-radius:5px;padding:2px 6px;white-space:nowrap}
+.settings-accordion .accord-hint{font-size:10px;color:#8099a1;white-space:nowrap;max-width:43%;overflow:hidden;text-overflow:ellipsis}
+.settings-accordion .accord-body{padding:9px 10px 11px;min-width:0}
+.settings-accordion .rotate-row{margin-top:3px}
+.settings-accordion.rotation-global{background:#f5fbf9;border-color:#bfded8;margin-bottom:8px}
+.settings-accordion.rotation-global>summary{color:#125f5a}
+.settings-accordion.rotation-global .accord-body{padding:9px 10px 10px}
+.settings-accordion.crop-collection{background:#fff;border-color:#dfe9ec;padding:0;margin-bottom:8px}
+.settings-accordion.crop-collection .accord-body{padding:3px 8px 9px}
+.settings-accordion.crop-collection #list{max-height:220px;overflow-y:auto;margin-top:2px}
+.settings-accordion.preview-details{padding:0;margin-top:0}
+.settings-accordion.preview-details>summary{margin:0}
+.settings-accordion.preview-details:not([open])>summary{margin:0}
+.settings-accordion.preview-details .accord-body{padding:7px}
+.settings-accordion.preview-details .preview{height:170px}
+.settings-accordion .apply-compact{font-size:11px;padding:5px 10px;width:100%;margin-top:7px}
+.current-export-actions{display:flex;gap:6px;margin:10px 0 4px;min-width:0}
+.current-export-actions button{flex:1;min-width:0;padding:7px 5px;font-size:11px;line-height:1.3;overflow-wrap:anywhere}
+.current-export-actions #single{border-color:#96c6be;color:#067069;background:#f4fbf9}
+@container (max-width:280px){.settings-accordion>summary{padding:9px 7px;gap:4px}.settings-accordion .accord-hint{display:none}.settings-accordion .accord-body{padding:7px}.current-export-actions{flex-wrap:wrap}.current-export-actions button{flex-basis:100%}}
+
+/* v13: no redundant Apply button; short, readable auto-commit hint */
+.autosave-field-hint{font-size:10.5px;color:#66838b;line-height:1.5;margin:5px 0 1px;overflow-wrap:anywhere}
+.field>input:focus-visible{outline:2px solid #65b6ac;outline-offset:1px;border-color:#16867e}
+</style></head>
+<body>
+<header class="topbar">
+  <div class="brand"><div class="brand-mark">◩</div><div><h1>SVG 裁切工作室 <span class="tag">v14</span></h1><small>可調工作區 · 矩形裁切 · 圖層管理</small></div></div>
+  <div id="filename" title="目前載入的 SVG">尚未載入 SVG</div>
+</header>
+<div class="toolbar" id="toolbar" role="toolbar" aria-label="裁切工具">
+  <div class="tool-group"><span class="tool-group-label">檔案</span>
+    <label class="upload" title="匯入 SVG 原圖">開啟 SVG<input type="file" id="file" accept=".svg,image/svg+xml"></label>
+    <label class="upload" title="載入裁切 JSON 設定">載入 JSON<input type="file" id="jsonfile" accept=".json,application/json"></label>
+    <button id="save" title="儲存裁切設定 JSON 至輸出資料夾">儲存設定</button>
+  </div>
+  <div class="tool-group"><span class="tool-group-label">編輯</span>
+    <button id="selectMode" class="on" title="選取或調整裁切框">↖ 選取</button>
+    <button id="rectMode" title="在圖上拖曳新增裁切框">＋ 框選</button>
+    <button id="addObject" hidden disabled title="暫停使用">＋ 物件獨立</button>
+    <button id="addFocus" hidden disabled title="暫停使用">＋ 物件定位</button>
+    <button id="fit" title="原圖符合檢視區域">適合畫面</button>
+  </div>
+  <div class="tool-group tool-export"><span class="tool-group-label">輸出</span>
+    <label class="compact-toggle" title="刪除輸出範圍外的可移除圖形及未使用資源"><input id="compactExport" type="checkbox" checked>精簡 SVG</label>
+    <button id="chooseFolder" title="選擇／變更輸出資料夾（Chrome / Edge）">📁 選擇位置</button>
+    <button id="saveFolder" class="primary" title="將所有裁切 SVG 與設定檔儲存至目前資料夾；首次使用會先要求選擇資料夾">儲存全部</button>
+    <button id="exportZip" title="將 ZIP 儲存至選定資料夾">儲存 ZIP</button>
+    <span class="folder-label" id="folderLabel" title="尚未選擇輸出資料夾">首次儲存時選擇資料夾</span>
+  </div>
+  <div class="tool-group tool-panels"><span class="tool-group-label">面板</span>
+    <button id="toggleLayers" class="pane-visibility on" title="顯示或暫藏圖層面板">圖層</button>
+    <button id="toggleCanvas" class="pane-visibility on" title="顯示或暫藏中央 SVG 圖面">圖面</button>
+    <button id="toggleSettings" class="pane-visibility on" title="顯示或暫藏設定面板">設定</button>
+    <button id="dockCanvasTop" hidden title="將中央 SVG 圖面放回原位">還原圖面</button>
+    <button id="resetWorkspace" title="將面板位置、尺寸恢復為預設">重設版面</button>
+  </div>
+</div>
+<div class="layout" id="workspace">
+<section class="panel" id="paneLayers" data-panel="layers"><div class="head" data-drag-title="paneLayers" title="拖曳標題可將面板移到任意位置"><span class="pane-title">圖層與物件</span><span class="pane-head-actions"><span id="layerCount" class="tag">0</span><button type="button" class="pane-icon" data-undock="paneLayers" title="浮動此面板（拖曳標題也可以）" aria-label="浮動面板">▣</button><button type="button" class="pane-icon" data-hide="paneLayers" title="暫藏面板，從上方「面板」重新顯示" aria-label="暫藏面板">—</button></span></div><div class="panel-scroll">
+<input id="search" placeholder="搜尋停止線、標誌、群組名稱…">
+<details class="help-fold"><summary>如何選取群組與隱藏物件</summary><p class="hint">每張矩形裁切圖都有獨立圖層開關。圖面上 Shift＋點擊選取完整群組，Alt＋點擊選細部物件；取消勾選或按「隱藏整組」，只影響目前這張裁切圖。</p></details>
+<div class="split"><button id="undoVisibility" disabled title="復原此裁切框最近一次的圖層顯示變更">↶ 復原上一步</button><button id="showAll" title="只將目前裁切框的所有物件顯示，不影響其他裁切圖">全部顯示</button></div>
+<div class="selection-box" id="selectionBox" hidden>
+  <div class="mini">目前選取的群組／物件</div><strong id="selectionName"></strong>
+  <div class="mini" id="selectionPath"></div>
+  <div class="split" style="margin-top:6px"><button id="pickParent">↑ 上一層群組</button><button id="pickChild">↓ 內部物件</button></div>
+  <div class="split"><button id="hideTarget" class="hide-selection" title="只會從目前裁切框的輸出中排除此群組">隱藏整組</button><button id="restoreTarget" title="還原目前所選物件；若上層已隱藏，也會恢復該上層">顯示此組</button></div>
+  <div class="mini">在裁切框外點擊物件，或在框內按 Shift＋點擊，可智慧選取整組；Alt＋點擊選取細節。</div>
+</div>
+<p id="visibilityText" class="mini">尚未選取裁切圖：目前調整的是新圖預設狀態</p>
+<details class="restore-section" id="hiddenSection">
+  <summary><strong>已隱藏的物件</strong><span class="tag" id="hiddenCount">0</span></summary>
+  <p class="mini" id="hiddenHint">隱藏物件將出現在這裡；按「恢復」即可找回。</p>
+  <div id="hiddenList" class="hidden-list"></div>
+</details>
+<details class="raster-section" id="rasterSection" hidden>
+  <summary><strong><span class="raster-title-full">大型嵌入圖片（檔案體積診斷）</span><span class="raster-title-short">嵌入圖片</span></strong><span class="mini" id="rasterSummary"></span></summary>
+  <p class="hint">此處列出 SVG 中被引用的嵌入 PNG。取消勾選可對目前裁切圖隱藏對應物件；配合「精簡輸出 SVG」，未被引用的圖片才會被真正移除。</p>
+  <div id="rasterList"></div>
+</details>
+<div id="tree" class="tree"></div>
+</div></section>
+<div class="divider-handle" id="splitLeft" aria-label="拖曳調整左側面板寬度" title="拖曳調整圖層面板寬度"></div>
+<section class="panel" id="paneCanvas" data-panel="canvas"><div class="head" data-drag-title="paneCanvas" title="拖曳標題可將面板移到任意位置"><span class="pane-title">SVG 原圖與裁切框</span><span class="pane-head-actions"><span id="modeLabel" class="tag">選取模式</span><button type="button" class="pane-icon" data-undock="paneCanvas" title="浮動此面板（拖曳標題也可以）" aria-label="浮動面板">▣</button><button type="button" class="pane-icon" data-hide="paneCanvas" title="暫藏面板，從上方「面板」重新顯示" aria-label="暫藏面板">—</button></span></div><div class="viewer" id="viewer"><div class="stage" id="stage"></div>
+<div class="size-overlay" id="sizeOverlay" hidden aria-label="目前裁切框的尺寸">
+  <span class="size-title">裁切框尺寸</span>
+  <label>寬 <input id="directW" type="number" min="1" step="1" inputmode="decimal" aria-label="裁切框寬度"></label>
+  <span class="size-times">×</span>
+  <label>高 <input id="directH" type="number" min="1" step="1" inputmode="decimal" aria-label="裁切框高度"></label>
+  <span class="size-unit" title="SVG 的 viewBox 使用者座標單位，非毫米">SVG</span>
+</div>
+</div><div class="status" id="status">直接拖曳圖面平移檢視視窗；拖曳裁切框邊線移動裁切框，八個控制點調整尺寸。Shift＋點擊選取群組。</div></section>
+<div class="divider-handle" id="splitRight" aria-label="拖曳調整右側面板寬度" title="拖曳調整設定面板寬度"></div>
+<section class="panel" id="paneSettings" data-panel="settings"><div class="head" data-drag-title="paneSettings" title="拖曳標題可將面板移到任意位置"><span class="pane-title">裁切設定</span><span class="pane-head-actions"><span id="cropCount" class="tag">0 張</span><button type="button" class="pane-icon" data-undock="paneSettings" title="浮動此面板（拖曳標題也可以）" aria-label="浮動面板">▣</button><button type="button" class="pane-icon" data-hide="paneSettings" title="暫藏面板，從上方「面板」重新顯示" aria-label="暫藏面板">—</button></span></div><div class="panel-scroll">
+<details class="settings-accordion rotation-global" id="globalRotationBlock" open>
+ <summary><span class="accord-title">原圖預設旋轉角度（全域）</span><span class="accord-value" id="globalAngleSummary">0°</span></summary>
+ <div class="accord-body">
+  <div class="rotate-row"><input id="globalAngleSlider" type="range" min="-180" max="180" step="1" value="0" aria-label="全域旋轉角度"><input id="globalAngle" type="number" min="-360" max="360" step="1" value="0" aria-label="全域角度"> <span class="mini">°</span></div>
+  <div class="split"><button id="globalRotateL" class="narrow">↶ −90°</button><button id="globalRotateReset" class="narrow">0°</button><button id="globalRotateR" class="narrow">↷ ＋90°</button></div>
+  <div class="rotation-note">預設套用全部裁切圖；可在單張裁切圖啟用獨立角度。</div>
+ </div>
+</details>
+<details class="settings-accordion crop-collection" id="cropListSection" open>
+ <summary><span class="accord-title">裁切清單</span><span class="accord-hint">選取、匯出、複製</span></summary>
+ <div class="accord-body"><div id="list"></div></div>
+</details>
+<div id="noCrop" class="hint">先按上方「＋ 拖曳新增矩形」，在中央圖面框選裁切範圍。</div>
+<div id="edit" hidden>
+ <details class="settings-accordion" id="cropBasicsSection" open>
+  <summary><span class="accord-title">裁切圖基本設定</span><span class="accord-hint" id="activeCropSummary">位置、尺寸、檔名</span></summary>
+  <div class="accord-body">
+   <label class="field">輸出檔名<input id="cropName" placeholder="如 stop-line"></label>
+   <label class="field" id="cropModeLine">裁切模式：<strong id="cropModeDisplay">矩形裁切</strong><select id="cropMode" hidden disabled><option value="rectangle">矩形裁切</option><option value="object">物件獨立（舊設定相容）</option><option value="focus">物件定位（舊設定相容）</option></select></label>
+   <div id="targetInfo" class="mini"></div>
+   <label class="field" id="paddingLine">物件留白（SVG 座標單位）<input id="padding" type="number" min="0" step="1"></label>
+   <div class="grid4"><label class="field">X<input id="gx" type="number" step=".1"></label><label class="field">Y<input id="gy" type="number" step=".1"></label><label class="field">寬<input id="gw" type="number" step=".1" min="1"></label><label class="field">高<input id="gh" type="number" step=".1" min="1"></label></div>
+   <div class="autosave-field-hint" title="按 Enter 或離開輸入欄位即自動更新，不需要再按套用">變更後按 Enter 或點擊其他位置，即自動更新裁切框與預覽。</div>
+   <div class="notice" id="warning"></div>
+  </div>
+ </details>
+ <details class="settings-accordion" id="cropRotationSection">
+  <summary><span class="accord-title">單張旋轉角度</span><span class="accord-value" id="cropRotationSummary">跟隨全域</span></summary>
+  <div class="accord-body">
+   <label class="rotation-override"><input type="checkbox" id="cropRotationOverride"><span>使用單張專用角度（不跟隨全域）</span></label>
+   <div id="cropAngleControls" class="crop-angle-controls" hidden>
+    <div class="rotate-row" style="margin:7px 0 5px"><input id="angleSlider" type="range" min="-180" max="180" step="1" value="0"><input id="angle" type="number" min="-360" max="360" step="1" value="0"><span class="mini">°</span></div>
+    <div class="split"><button id="rotateL">↶ −90°</button><button id="rotateReset">重設 0°</button><button id="rotateR">↷ ＋90°</button></div>
+   </div>
+   <div class="rotation-note" id="rotationModeNote">目前跟隨原圖預設角度。</div>
+  </div>
+ </details>
+ <details class="settings-accordion preview-details" id="cropPreviewSection">
+  <summary><span class="accord-title">裁切結果預覽</span><span class="accord-hint">點擊展開</span></summary>
+  <div class="accord-body"><div class="preview" id="preview"></div></div>
+ </details>
+ <div class="current-export-actions"><button id="single" title="將目前裁切圖儲存至選定資料夾">儲存此 SVG</button><button id="saveSingleFolder" title="自行選擇檔案位置及名稱">另存新檔…</button></div>
+</div>
+
+</div><div class="foot"><span class="mini">精簡輸出可減少隱藏或框外圖形。框內與空白處拖曳可平移檢視；拖曳框線移動框，八個控制點調整尺寸；方向鍵微移裁切框。</span></div></section>
+<div id="canvasPlaceholder" class="canvas-placeholder" hidden><strong>SVG 圖面已移至浮動視窗</strong><button id="returnCanvas">將圖面放回工作區</button></div></div><div id="toast"></div>
+<script>
+'use strict';
+const $=id=>document.getElementById(id),NS='http://www.w3.org/2000/svg';
+let sourceDoc=null,sourceRoot=null,sourceName='',bounds={x:0,y:0,w:100,h:100},nodes=[],byKey=new Map(),sourceKey=new WeakMap();
+let crops=[],selected=-1,targetKey='',defaultHidden=new Set(),toolMode='select',pickTrail=[],pickIndex=-1,globalAngle=0;
+const defaultHistoryOwner={};let hideUndo=new WeakMap();
+function historyOwner(){return selected>=0&&crops[selected]?crops[selected]:defaultHistoryOwner}
+function recordVisibility(){const owner=historyOwner(),stack=hideUndo.get(owner)||[];stack.push([...hiddenSet()]);if(stack.length>40)stack.shift();hideUndo.set(owner,stack)}
+function changeVisibility(next,message){const before=hiddenSet();if(before.size===next.size&&[...before].every(k=>next.has(k)))return;recordVisibility();setHiddenSet(next);renderAll();if(message)note(message)}
+function undoVisibility(){const owner=historyOwner(),stack=hideUndo.get(owner)||[];if(!stack.length)return;setHiddenSet(new Set(stack.pop()));renderAll();note('已復原這張裁切圖上一步的圖層顯示設定')}
+function restoreHidden(key){const info=byKey.get(key),next=hiddenSet();next.delete(key);for(const a of info?.ancestors||[])next.delete(a);changeVisibility(next,'已恢復 '+(info?.label||key))}
+function renderHiddenList(){const list=$('hiddenList'),hidden=[...hiddenSet()];$('hiddenCount').textContent=String(hidden.length);$('hiddenHint').textContent=hidden.length?'僅影響目前選取的裁切框；逐項按「恢復」即可找回。':'目前沒有隱藏任何物件。';$('undoVisibility').disabled=!(hideUndo.get(historyOwner())||[]).length;list.replaceChildren();for(const key of hidden){const info=byKey.get(key);const item=document.createElement('div');item.className='hidden-entry';const name=document.createElement('div');name.className='name-wrap';const title=document.createElement('strong');title.textContent=info?.label||(key+'（原圖已找不到）');const path=document.createElement('small');path.textContent=info?.ancestors.map(a=>byKey.get(a)?.label).filter(Boolean).slice(-3).join(' / ')||'SVG 物件';name.append(title,path);const btn=document.createElement('button');btn.textContent='恢復';btn.title='僅在目前的裁切框重新顯示';btn.onclick=()=>restoreHidden(key);item.append(name,btn);list.append(item)}}
+let stageArt=null,stageMeasure=null,overlay=null,zoom=1,ox=0,oy=0,drag=null,space=false,initialCenter=null;
+function note(s){$('toast').textContent=s;$('toast').style.display='block';clearTimeout(note.timer);note.timer=setTimeout(()=>$('toast').style.display='none',3200)}
+function num(x,fallback=0){let n=Number(x);return Number.isFinite(n)?n:fallback}
+function round(x){return Math.round(num(x)*100)/100}
+function nameSafe(s){return String(s||'crop').replace(/[\\/:*?"<>|]/g,'_').trim()||'crop'}
+function rectCopy(r){return{x:r.x,y:r.y,w:r.w,h:r.h}}
+function hiddenSet(){return selected>=0?new Set(crops[selected].hidden||[]):new Set(defaultHidden)}
+function setHiddenSet(s){if(selected>=0)crops[selected].hidden=[...s];else defaultHidden=new Set(s)}
+function initNodes(){nodes=[];byKey=new Map();sourceKey=new WeakMap();let used=new Set();
+ function walk(el,path,ancestors){if(el.nodeType!==1)return;let tag=el.localName,blocked=['defs','clipPath','mask','pattern','linearGradient','radialGradient','filter','symbol','marker','metadata','style','title','desc','script','foreignObject'].includes(tag);if(blocked)return;
+ let id=el.getAttribute('id')||'',key=id&&!used.has('id:'+id)?'id:'+id:'path:'+path;if(id)used.add('id:'+id);
+ let info={el,key,path,id,label:el.getAttribute('data-name')||el.getAttribute('aria-label')||id||tag,tag,ancestors};nodes.push(info);byKey.set(key,info);sourceKey.set(el,key);
+ Array.from(el.children).forEach((child,i)=>walk(child,path+'/'+i,[...ancestors,key]));}
+ Array.from(sourceRoot.children).forEach((child,i)=>walk(child,String(i),[]));}
+function sanitize(doc){for(let el of [...doc.querySelectorAll('script,foreignObject')])el.remove();for(const el of doc.querySelectorAll('*'))for(const a of [...el.attributes]){if(/^on/i.test(a.name))el.removeAttribute(a.name);if(/^(?:href|xlink:href)$/i.test(a.name)&&/^\s*javascript:/i.test(a.value))el.removeAttribute(a.name)}}
+function loadSVG(data,filename){try{hideUndo=new WeakMap();let p=new DOMParser().parseFromString(data,'image/svg+xml');if(p.querySelector('parsererror')||p.documentElement.localName!=='svg')throw Error('SVG 內容格式無效');sanitize(p);sourceDoc=p;sourceRoot=p.documentElement;sourceName=filename;$('filename').textContent=filename;
+ let vb=sourceRoot.getAttribute('viewBox');if(vb){let a=vb.trim().split(/[\s,]+/).map(Number);if(a.length!==4||!a.every(Number.isFinite)||a[2]<=0||a[3]<=0)throw Error('viewBox 無效');bounds={x:a[0],y:a[1],w:a[2],h:a[3]}}else{bounds={x:0,y:0,w:parseFloat(sourceRoot.getAttribute('width'))||1000,h:parseFloat(sourceRoot.getAttribute('height'))||1000}};
+ initNodes();crops=[];selected=-1;targetKey='';pickTrail=[];pickIndex=-1;defaultHidden=new Set();globalAngle=0;syncGlobalAngleUI();initStage();setMode('select');fit();renderAll();note('載入成功：'+filename)}catch(e){alert('開啟 SVG 失敗：'+e.message)}}
+function initStage(){let stage=$('stage');stage.innerHTML='';stage.style.width=bounds.w+'px';stage.style.height=bounds.h+'px';stageMeasure=document.importNode(sourceRoot,true);stageMeasure.classList.add('measure');stageMeasure.setAttribute('width','100%');stageMeasure.setAttribute('height','100%');stageMeasure.setAttribute('viewBox',`${bounds.x} ${bounds.y} ${bounds.w} ${bounds.h}`);
+ // A dedicated invisible, non-filtered measuring copy keeps object geometry available even when hidden in the output.
+ for(const info of nodes){let el=nodeInClone(stageMeasure,info.path);if(el)el.setAttribute('data-crop-key',info.key)}
+ stage.append(stageMeasure);overlay=document.createElementNS(NS,'svg');overlay.classList.add('overlay');overlay.setAttribute('viewBox',`${bounds.x} ${bounds.y} ${bounds.w} ${bounds.h}`);overlay.setAttribute('width','100%');overlay.setAttribute('height','100%');stage.append(overlay);renderStage()}
+function nodeInClone(clone,path){if(path==null)return null;let e=clone;for(let index of String(path).split('/')){e=e?.children[Number(index)];if(!e)return null}return e}
+function nodeBBox(key){let info=byKey.get(key);if(!info||!stageMeasure)return null;let el=nodeInClone(stageMeasure,info.path);if(!el||typeof el.getBBox!=='function')return null;try{let b=el.getBBox(),a=el.getScreenCTM(),r=stageMeasure.getScreenCTM();if(!a||!r)return null;let m=r.inverse().multiply(a),p=[[b.x,b.y],[b.x+b.width,b.y],[b.x,b.y+b.height],[b.x+b.width,b.y+b.height]].map(([x,y])=>({x:m.a*x+m.c*y+m.e,y:m.b*x+m.d*y+m.f}));let xs=p.map(q=>q.x),ys=p.map(q=>q.y);let o={x:Math.min(...xs),y:Math.min(...ys),w:Math.max(...xs)-Math.min(...xs),h:Math.max(...ys)-Math.min(...ys)};return Object.values(o).every(Number.isFinite)?o:null}catch(e){return null}}
+function getTargetBBox(it){return nodeBBox(it.target)||it.fallbackBBox||null}
+function effectiveAngle(it){return it?.angleOverride!=null?num(it.angleOverride):globalAngle}
+function rotationCenter(it){return it?.rotationPivot==='crop' ? pivot(it) : {x:bounds.x+bounds.w/2,y:bounds.y+bounds.h/2}}
+function rotatedBox(b,angle){let t=Math.abs(Math.cos(angle*Math.PI/180)),s=Math.abs(Math.sin(angle*Math.PI/180)),w=t*b.w+s*b.h,h=s*b.w+t*b.h;return{x:b.x+b.w/2-w/2,y:b.y+b.h/2-h/2,w,h}}
+function getRect(it){if(!it)return null;if(it.mode==='rectangle')return{x:it.x,y:it.y,w:it.w,h:it.h};let b=getTargetBBox(it);if(!b)return null;let r=rotatedBox(b,effectiveAngle(it));let pad=Math.max(0,num(it.padding,15));return{x:r.x-pad+num(it.dx),y:r.y-pad+num(it.dy),w:Math.max(1,it.manualW??(r.w+2*pad)),h:Math.max(1,it.manualH??(r.h+2*pad))}}
+function pivot(it){let r=getRect(it);if(it.mode==='rectangle')return{x:r.x+r.w/2,y:r.y+r.h/2};let b=getTargetBBox(it)||r;return{x:b.x+b.w/2,y:b.y+b.h/2}}
+function cloneWithVisibility(it,onlyObject=false,forViewer=false,compact=false){let svg=document.importNode(sourceRoot,true);let cloneMap=new Map(),hidden=it?new Set(it.hidden||[]):defaultHidden;
+ for(const info of nodes){let el=nodeInClone(svg,info.path);if(!el)continue;cloneMap.set(info.key,el);if(forViewer)el.setAttribute('data-crop-key',info.key);if(hidden.has(info.key)){el.setAttribute('display','none');el.style.display='none'}}
+ if(onlyObject){let target=cloneMap.get(it.target);if(!target)throw Error('無法找到物件 '+it.target);let keep=new Set(),e=target;while(e&&e!==svg){keep.add(e);e=e.parentElement}
+ function prune(parent){for(const el of [...parent.children]){if(['defs','style','metadata','title','desc','clipPath'].includes(el.localName))continue;if(keep.has(el)){if(el!==target)prune(el)}else el.remove()}}prune(svg)}
+ if(compact&&it){
+  // Geometry comes from the original SVG; allow generous margin for stroke and effects.
+  let crop=getRect(it),rotation=effectiveAngle(it)*Math.PI/180,cos=Math.cos(rotation),sin=Math.sin(rotation),center=rotationCenter(it),safe=Math.max(18,Math.min(bounds.w,bounds.h)*.025);
+  function outside(key){let b=nodeBBox(key);if(!b)return false;
+   let pts=[[b.x,b.y],[b.x+b.w,b.y],[b.x,b.y+b.h],[b.x+b.w,b.y+b.h]].map(([x,y])=>{let dx=x-center.x,dy=y-center.y;return{x:center.x+cos*dx-sin*dy+num(it.panX),y:center.y+sin*dx+cos*dy+num(it.panY)}});
+   let minX=Math.min(...pts.map(p=>p.x)),maxX=Math.max(...pts.map(p=>p.x)),minY=Math.min(...pts.map(p=>p.y)),maxY=Math.max(...pts.map(p=>p.y));
+   return maxX<crop.x-safe||minX>crop.x+crop.w+safe||maxY<crop.y-safe||minY>crop.y+crop.h+safe;
+  }
+  for(const info of nodes){let el=cloneMap.get(info.key);if(!el||!svg.contains(el))continue;
+   if(isActuallyHidden(info,hidden)||(!onlyObject&&outside(info.key)))el.remove();
+  }
+ }
+ let a=effectiveAngle(it),px=num(it?.panX),py=num(it?.panY);
+ if(a!==0||px!==0||py!==0){let p=rotationCenter(it),g=document.createElementNS(NS,'g');g.setAttribute('transform',`translate(${px} ${py}) rotate(${a} ${p.x} ${p.y})`);for(const el of [...svg.children]){if(!['defs','style','clipPath','metadata','title','desc'].includes(el.localName))g.append(el)}svg.append(g)}
+ return svg}
+// Remove unused SVG resources only after checking all links (including resources linked by other resources).
+// In particular, unused <image> nodes inside <defs> often contain hundreds of KB of base64 PNG data.
+function removeUnusedResources(svg){
+ const resTypes=new Set(['clipPath','mask','pattern','linearGradient','radialGradient','filter','marker','symbol']);
+ const resources=[...svg.querySelectorAll('*')].filter(el=>el.parentNode?.localName==='defs'||resTypes.has(el.localName));
+ const refs=new Set();
+ function scan(el){for(const a of el.attributes){let value=a.value;
+   for(const m of value.matchAll(/url\(\s*['"]?#([^'"\s)]+)['"]?\s*\)/g))refs.add(m[1]);
+   if((a.localName==='href')&&value.startsWith('#'))refs.add(value.slice(1));
+ }}
+ function inResource(el){return resources.some(r=>r===el||r.contains(el))}
+ for(const el of svg.querySelectorAll('*'))if(!inResource(el))scan(el);
+ let changed=true;while(changed){changed=false;for(const r of resources){let id=r.getAttribute('id');if(!id||!refs.has(id)||r.hasAttribute('data-scanned-resource'))continue;
+   r.setAttribute('data-scanned-resource','');for(const el of [r,...r.querySelectorAll('*')]){let before=refs.size;scan(el);if(refs.size>before)changed=true}
+ }}
+ for(const r of resources){r.removeAttribute('data-scanned-resource');let id=r.getAttribute('id');if(id&&!refs.has(id)&&!resources.some(other=>other!==r&&r.contains(other)&&refs.has(other.getAttribute('id'))))r.remove()}
+ for(const def of svg.querySelectorAll('defs'))if(!def.children.length)def.remove();
+}
+function sceneSVG(it,full=false,annotate=false,compact=false){let b=full?bounds:getRect(it);if(!b)throw Error('無法取得裁切範圍');if(it&&it.mode!=='rectangle'&&(!it.target||!byKey.has(it.target)))throw Error('找不到對應物件；請重新綁定裁切目標');let svg=cloneWithVisibility(it,!!it&&it.mode==='object',annotate,compact);svg.setAttribute('viewBox',`${b.x} ${b.y} ${Math.max(1,b.w)} ${Math.max(1,b.h)}`);svg.setAttribute('width',String(Math.max(1,b.w)));svg.setAttribute('height',String(Math.max(1,b.h)));svg.setAttribute('overflow','hidden');if(compact&&!full&&!annotate)removeUnusedResources(svg);if(annotate){svg.classList.add('art');svg.setAttribute('width','100%');svg.setAttribute('height','100%')}return svg}
+function renderStage(){if(!sourceRoot||!overlay)return;try{let art=sceneSVG(selected>=0?crops[selected]:null,true,true);stageArt?.remove();stageArt=art;$('stage').insertBefore(art,overlay)}catch(e){note('圖面預覽失敗：'+e.message)}}
+function fit(){if(!sourceRoot)return;let r=$('viewer').getBoundingClientRect();zoom=Math.min((r.width-40)/bounds.w,(r.height-40)/bounds.h);ox=(r.width-bounds.w*zoom)/2;oy=(r.height-bounds.h*zoom)/2;position()}
+function position(){$('stage').style.transform=`translate(${ox}px,${oy}px) scale(${zoom})`;positionSizeOverlay()}
+function setMode(m){toolMode=m;
+ ['selectMode','rectMode'].forEach((id,i)=>$(id).classList.toggle('on',m===['select','rect'][i]));
+ $('modeLabel').textContent=m==='rect'?'新增矩形模式':'選取／調整模式';
+ $('viewer').style.cursor=m==='rect'?'crosshair':'grab';
+ $('status').textContent=m==='rect'?'拖曳空白處建立裁切框，完成後可用框上的「寬／高」修改尺寸。':'直接在圖面按住拖曳可平移檢視；拖曳裁切框邊線移動框，八個控制點調整框大小；Shift＋點擊可選取完整群組。';
+ positionSizeOverlay();
+}
+function meaningfulGroup(info){if(info?.tag!=='g'||!info.id)return false;
+ return !/^(?:g\d+|group\d*|layer\d*|path\d*|clip\d*|Markings|Signs|Background\d*|定位物件)$/i.test(info.id);
+}
+function selectGraphicKey(key,fine=false){let info=byKey.get(key);if(!info)return;
+ const chain=[key,...info.ancestors.slice().reverse()].filter(k=>byKey.has(k));
+ pickTrail=chain;
+ let idx=fine?0:chain.findIndex(k=>meaningfulGroup(byKey.get(k)));
+ if(idx<0){idx=chain.findIndex((k,i)=>i>0&&byKey.get(k)?.tag==='g'&&![ 'Markings','Signs','Background1'].includes(byKey.get(k).id));}
+ pickIndex=Math.max(0,idx);targetKey=chain[pickIndex];renderTree();renderOverlay();updateSelectionBox();
+ const t=byKey.get(targetKey);$('status').textContent='已選取：'+(t?.label||targetKey)+'；可切換群組層級，並只在目前裁切框隱藏整組。';
+}
+function stepGraphicGroup(direction){if(!pickTrail.length||!byKey.has(targetKey))return;let idx=pickTrail.indexOf(targetKey);if(idx<0)idx=pickIndex;
+ let next=idx+direction;while(next>=0&&next<pickTrail.length&&direction>0&&byKey.get(pickTrail[next])?.tag!=='g')next+=direction;
+ if(next<0||next>=pickTrail.length)return;pickIndex=next;targetKey=pickTrail[next];renderTree();renderOverlay();updateSelectionBox();
+}
+function updateSelectionBox(){let holder=$('selectionBox'),t=byKey.get(targetKey);holder.hidden=!t;
+ if(!t)return;
+ $('selectionName').textContent=t.label+' ('+t.tag+')';
+ $('selectionPath').textContent=[...t.ancestors.map(k=>byKey.get(k)?.label).filter(Boolean),t.label].slice(-4).join(' / ');
+ let idx=pickTrail.indexOf(targetKey);$('pickParent').disabled=idx<0||!pickTrail.slice(idx+1).some(k=>byKey.get(k)?.tag==='g');$('pickChild').disabled=idx<=0;
+}
+
+function renderTree(){if(!sourceRoot)return;renderRaster();let holder=$('tree');holder.innerHTML='';$('layerCount').textContent=nodes.length;let q=$('search').value.toLowerCase().trim(),hidden=hiddenSet();$('visibilityText').textContent=selected>=0?'正在編輯：'+crops[selected].name+'（此張圖專用顯示設定）':'目前編輯的是「新建裁切圖」的預設圖層';
+ function row(info,kids){let d=document.createElement('div'),line=document.createElement('div');line.className='tree-row'+(targetKey===info.key?' picked':'')+(isActuallyHidden(info,hidden)?' hidden-layer':'');let tw=document.createElement('span');tw.className='twist';tw.textContent=kids?.length?'▸':'·';let box=document.createElement('input');box.type='checkbox';box.checked=!isActuallyHidden(info,hidden);box.title='此張裁切圖是否輸出「'+info.label+'」';box.onchange=()=>{let next=hiddenSet();if(box.checked){next.delete(info.key);for(const ancestor of info.ancestors)next.delete(ancestor)}else next.add(info.key);changeVisibility(next)};let label=document.createElement('button');label.className='treename';label.textContent=info.label;label.title=info.label+(info.id?' · ID: '+info.id:'');label.onclick=()=>selectGraphicKey(info.key,false);let type=document.createElement('span');type.className='type';type.textContent=info.tag;line.append(tw,box,label,type);d.append(line);
+ if(kids?.length){let branch=document.createElement('div');branch.className='branch';let expanded=q||expandedKeys.has(info.key);branch.hidden=!expanded;tw.textContent=expanded?'▾':'▸';tw.onclick=()=>{let now=branch.hidden;branch.hidden=!now;tw.textContent=now?'▾':'▸';now?expandedKeys.add(info.key):expandedKeys.delete(info.key)};for(let child of kids)branch.append(row(child,treeChildren(child)));d.append(branch)}return d}
+ if(q){nodes.filter(info=>info.label.toLowerCase().includes(q)||info.id.toLowerCase().includes(q)).slice(0,350).forEach(info=>holder.append(row(info,[])))}else{for(const info of nodes.filter(x=>!x.ancestors.some(a=>byKey.has(a))))holder.append(row(info,treeChildren(info)))}updateSelectionBox();renderHiddenList()}
+function renderRaster(){
+ const panel=$('rasterSection'),list=$('rasterList');list.innerHTML='';
+ if(!sourceRoot){panel.hidden=true;return}
+ const images=new Map([...sourceRoot.querySelectorAll('defs image[id]')].map(e=>[e.id,e]));
+ const entries=[];
+ for(const info of nodes){if(info.tag!=='use')continue;
+  const href=info.el.getAttribute('href')||info.el.getAttributeNS('http://www.w3.org/1999/xlink','href')||'';
+  const img=images.get(href.replace(/^#/,''));if(!img)continue;
+  const bytes=(img.getAttribute('href')||img.getAttributeNS('http://www.w3.org/1999/xlink','href')||'').length;
+  const parent=[...info.ancestors].reverse().map(k=>byKey.get(k)?.label).find(Boolean)||'未命名群組';
+  entries.push({info,img,bytes,parent});
+ }
+ entries.sort((a,b)=>b.bytes-a.bytes);panel.hidden=!entries.length;$('rasterSummary').textContent=entries.length+' 個圖片引用 · 點擊展開';
+ const hidden=hiddenSet();
+ for(const {info,img,bytes,parent} of entries){const d=document.createElement('label');d.className='raster-row';
+  const box=document.createElement('input');box.type='checkbox';box.checked=!isActuallyHidden(info,hidden);
+  box.title='勾選會保留圖片引用；取消會在此裁切圖中隱藏該圖像';
+  box.onchange=()=>{const next=hiddenSet();if(box.checked){next.delete(info.key);for(const k of info.ancestors)next.delete(k)}else next.add(info.key);changeVisibility(next)};
+  const t=document.createElement('span');t.textContent=`${img.id} · 約 ${Math.round(bytes/1024)} KB · 位於 ${parent}`;
+  d.append(box,t);list.append(d)
+ }
+}
+const expandedKeys=new Set();
+function treeChildren(info){return nodes.filter(other=>other.ancestors.at(-1)===info.key)}
+function isActuallyHidden(info,hidden){return hidden.has(info.key)||info.ancestors.some(k=>hidden.has(k))}
+function renderOverlay(){if(!overlay)return;overlay.innerHTML='';crops.forEach((it,i)=>{let b=getRect(it);if(!b)return;let rect=document.createElementNS(NS,'rect');for(const[k,v]of Object.entries({x:b.x,y:b.y,width:b.w,height:b.h}))rect.setAttribute(k,v);rect.setAttribute('class','crop'+(selected===i?' active':''));if(i!==selected)rect.setAttribute('opacity','.45');overlay.append(rect);if(i===selected){let label=document.createElementNS(NS,'text');label.setAttribute('class','idlabel');label.setAttribute('x',b.x+5);label.setAttribute('y',b.y-6);label.textContent=it.name;overlay.append(label);for(const [name,p] of Object.entries(handles(b))){let h=document.createElementNS(NS,'rect');let ss=Math.max(5,8/zoom);for(const[k,v]of Object.entries({x:p.x-ss/2,y:p.y-ss/2,width:ss,height:ss}))h.setAttribute(k,v);h.setAttribute('class','handle');overlay.append(h)}}});if(targetKey){let b=nodeBBox(targetKey);if(b){let r=document.createElementNS(NS,'rect');for(const[k,v]of Object.entries({x:b.x,y:b.y,width:b.w,height:b.h}))r.setAttribute(k,v);r.setAttribute('class','target');overlay.append(r)}}positionSizeOverlay()}
+function handles(b){return{nw:{x:b.x,y:b.y},n:{x:b.x+b.w/2,y:b.y},ne:{x:b.x+b.w,y:b.y},e:{x:b.x+b.w,y:b.y+b.h/2},se:{x:b.x+b.w,y:b.y+b.h},s:{x:b.x+b.w/2,y:b.y+b.h},sw:{x:b.x,y:b.y+b.h},w:{x:b.x,y:b.y+b.h/2}}}
+// 尺寸工具列定位在選取框左上角附近，固定像素大小，即使縮放也容易操作。
+function positionSizeOverlay(){
+ let pane=$('sizeOverlay'),it=crops[selected];
+ if(!it||!sourceRoot){pane.hidden=true;return}
+ let b=getRect(it);if(!b){pane.hidden=true;return}
+ let viewer=$('viewer'),vw=viewer.clientWidth,vh=viewer.clientHeight;
+ let sx=ox+(b.x-bounds.x)*zoom,sy=oy+(b.y-bounds.y)*zoom;
+ let ex=sx+b.w*zoom,ey=sy+b.h*zoom;
+ if(ex<0||ey<0||sx>vw||sy>vh){pane.hidden=true;return}
+ pane.hidden=false;
+ const toolW=pane.offsetWidth||290,toolH=pane.offsetHeight||35;
+ let left=Math.max(6,Math.min(sx+5,Math.max(6,vw-toolW-6)));
+ let top=sy>toolH+12?sy-toolH-6:sy+7;
+ top=Math.max(5,Math.min(top,Math.max(5,vh-toolH-5)));
+ pane.style.left=left+'px';pane.style.top=top+'px';
+ if(document.activeElement!==$('directW'))$('directW').value=round(b.w);
+ if(document.activeElement!==$('directH'))$('directH').value=round(b.h);
+}
+function applyDirectDimension(which){
+ let it=crops[selected];if(!it)return;
+ let input=$(which==='w'?'directW':'directH'),val=Number(input.value),b=getRect(it);
+ if(!b||!Number.isFinite(val)||val<=0){note('裁切框尺寸必須大於 0');positionSizeOverlay();return}
+ changeRect(it,{...b,[which]:val});
+ renderOverlay();renderEditor();renderList();
+ note('裁切框'+(which==='w'?'寬':'高')+'度已設為 '+round(val)+'（SVG 座標）');
+}
+
+function renderEditor(){let it=crops[selected];$('cropCount').textContent=crops.length+' 張';$('noCrop').hidden=!!it;$('edit').hidden=!it;if(!it)return;let b=getRect(it);$('cropName').value=it.name;$('activeCropSummary').textContent=it.name;$('cropMode').value=it.mode;$('cropModeDisplay').textContent=it.mode==='rectangle'?'矩形裁切':'舊設定：'+(it.mode==='object'?'物件獨立':'物件定位')+'（本版不新增）';$('padding').value=it.padding;$('paddingLine').style.display=it.mode==='rectangle'?'none':'block';$('targetInfo').textContent=it.target?'物件目標：'+(byKey.get(it.target)?.label||'無法找到：'+it.target):'矩形範圍';syncCropAngleUI(it);if(b){for(const[k,v]of Object.entries({x:b.x,y:b.y,w:b.w,h:b.h}))$('g'+k).value=round(v)}
+ let warning=$('warning');warning.style.display=it.target&&!byKey.has(it.target)?'block':'none';warning.textContent='找不到原來的物件 ID，請重新選取圖層並建立裁切區。';renderPreview(it)}
+function renderPreview(it){try{let p=$('preview');p.innerHTML='';let svg=sceneSVG(it);svg.removeAttribute('overflow');svg.style.width='100%';svg.style.height='100%';p.append(svg)}catch(e){$('preview').textContent='預覽失敗：'+e.message}}
+function renderList(){let list=$('list');list.innerHTML='';for(let i=0;i<crops.length;i++){const it=crops[i],card=document.createElement('div');card.className='card'+(i===selected?' current':'');let head=document.createElement('strong');head.textContent=it.name;let txt=document.createElement('p');txt.textContent=({rectangle:'矩形裁切',object:'物件獨立',focus:'物件定位'})[it.mode]+' · '+(it.angleOverride==null?'全域 '+globalAngle+'°':'單張 '+effectiveAngle(it)+'°')+' · 隱藏 '+(it.hidden||[]).length+' 個圖層/物件';let acts=document.createElement('div');acts.className='card-actions';let edit=document.createElement('button');edit.textContent='編輯';edit.onclick=()=>{selected=i;renderAll()};let exportOne=document.createElement('button');exportOne.textContent='匯出';exportOne.title='儲存此 SVG 至選定資料夾';exportOne.onclick=()=>saveOneCrop(it);let duplicate=document.createElement('button');duplicate.textContent='複製';duplicate.onclick=()=>{let clone=JSON.parse(JSON.stringify(it));clone.name=uniqueName(it.name+'-copy');crops.splice(i+1,0,clone);selected=i+1;renderAll()};let del=document.createElement('button');del.textContent='刪除';del.onclick=()=>{crops.splice(i,1);selected=crops.length?Math.min(i,crops.length-1):-1;renderAll()};acts.append(edit,exportOne,duplicate,del);card.append(head,txt,acts);list.append(card)}}
+function renderAll(){if(!sourceRoot)return;let objectView=selected>=0&&crops[selected].mode==='object';$('viewer').classList.toggle('object-view',objectView);$('preview').classList.toggle('object-view',objectView);renderStage();renderOverlay();renderTree();renderEditor();renderList();updateSelectionBox()}
+function uniqueName(s){let base=nameSafe(s),out=base,k=2;while(crops.some(it=>it.name===out))out=base+'-'+k++;return out}
+function addCrop(m,r){if(!sourceRoot)return note('請先載入 SVG');if(m!=='rectangle'&&!targetKey)return note('請先點選左側的圖層或圖面物件');let b=m==='rectangle'?(r||{x:bounds.x+bounds.w*.28,y:bounds.y+bounds.h*.3,w:bounds.w*.45,h:bounds.h*.33}):nodeBBox(targetKey);if(!b)return note('無法計算此物件外框，請改用矩形裁切');let it={name:uniqueName('crop-'+String(crops.length+1).padStart(2,'0')),mode:m,target:m==='rectangle'?'':targetKey,x:b.x,y:b.y,w:b.w,h:b.h,padding:m==='rectangle'?0:20,angleOverride:null,rotationPivot:'source',hidden:[...hiddenSet()],dx:0,dy:0,panX:0,panY:0,manualW:null,manualH:null,fallbackBBox:rectCopy(b)};crops.push(it);selected=crops.length-1;setMode('select');renderAll();note('已新增裁切圖；現在可以直接拖曳及調整裁切框')}
+function changeRect(it,newRect){let r={...newRect,w:Math.max(1,newRect.w),h:Math.max(1,newRect.h)};if(it.mode==='rectangle'){Object.assign(it,r);return}let b=getTargetBBox(it);if(!b)return;let base=rotatedBox(b,effectiveAngle(it)),pad=Math.max(0,num(it.padding));it.dx=r.x-(base.x-pad);it.dy=r.y-(base.y-pad);it.manualW=r.w;it.manualH=r.h}
+// v13: commit only the field that changed; do not overwrite another field still being edited.
+// Native "change" fires on blur or Enter, so partial number typing never redraws the view.
+function commitCropField(field){
+ const it=crops[selected]; if(!it)return;
+ if(field==='name'){
+   const previous=it.name;
+   it.name=uniqueNameWithExcept($('cropName').value,selected);
+   renderAll();
+   if(it.name!==previous)note('已更新輸出檔名：'+it.name+'.svg');
+   return;
+ }
+ if(field==='padding'){
+   const raw=$('padding').value.trim(),v=Number(raw);
+   if(!raw||!Number.isFinite(v)||v<0){$('padding').value=it.padding;note('物件留白需為 0 或正數');return;}
+   it.padding=v;renderAll();return;
+ }
+ const map={gx:'x',gy:'y',gw:'w',gh:'h'};
+ const key=map[field];if(!key)return;
+ const b=getRect(it);if(!b)return;
+ const raw=$(field).value.trim(),v=Number(raw);
+ if(!raw||!Number.isFinite(v)||((key==='w'||key==='h')&&v<=0)){
+   $(field).value=round(b[key]);
+   note((key==='w'||key==='h')?'裁切框寬度與高度必須大於 0':'請輸入有效座標');
+   return;
+ }
+ if(Math.abs(b[key]-v)<1e-9){$(field).value=round(b[key]);return;}
+ changeRect(it,{...b,[key]:v});
+ renderAll();
+}
+function uniqueNameWithExcept(s,index){let base=nameSafe(s),out=base,k=2;while(crops.some((it,i)=>i!==index&&it.name===out))out=base+'-'+k++;return out}
+function syncGlobalAngleUI(){
+ $('globalAngle').value=globalAngle;
+ $('globalAngleSlider').value=Math.max(-180,Math.min(180,globalAngle));
+ $('globalAngleSummary').textContent=globalAngle+'°';
+}
+function syncCropAngleUI(it){
+ const overridden=it?.angleOverride!=null;
+ $('cropRotationOverride').checked=overridden;
+ $('cropAngleControls').hidden=!overridden;
+ $('cropRotationSummary').textContent=overridden?effectiveAngle(it)+'° · 專用':'跟隨全域 '+globalAngle+'°';
+ $('rotationModeNote').textContent=overridden?'單張專用角度 '+effectiveAngle(it)+'°（不隨全域改變）':'目前跟隨全域 '+globalAngle+'°；勾選上方即可另設角度。';
+ $('angle').value=effectiveAngle(it);
+ $('angleSlider').value=Math.max(-180,Math.min(180,effectiveAngle(it)));
+}
+function refreshRotations(){
+ syncGlobalAngleUI();
+ if(!sourceRoot)return;
+ renderStage();renderOverlay();
+ if(selected>=0){syncCropAngleUI(crops[selected]);renderPreview(crops[selected]);}
+ renderList();
+}
+function setGlobalRotation(v){
+ globalAngle=Math.max(-360,Math.min(360,num(v)));
+ refreshRotations();
+}
+function setCropRotationOverride(checked){
+ const it=crops[selected];if(!it)return;
+ const old=getRect(it);
+ if(checked){it.angleOverride=effectiveAngle(it);it.rotationPivot='source'}
+ else{it.angleOverride=null;it.rotationPivot='source'}
+ if(it.mode!=='rectangle'&&it.manualW!=null&&old){let b=getRect(it);if(b){it.dx+=old.x-b.x;it.dy+=old.y-b.y}}
+ refreshRotations();
+}
+function rotateTo(v){
+ const it=crops[selected];if(!it||it.angleOverride==null)return;
+ const old=getRect(it);
+ it.angleOverride=Math.max(-360,Math.min(360,num(v)));
+ if(it.mode!=='rectangle'&&it.manualW!=null&&old){let b=getRect(it);if(b){it.dx+=old.x-b.x;it.dy+=old.y-b.y}}
+ refreshRotations();
+}
+
+function serialize(svg){return new XMLSerializer().serializeToString(svg)}
+function downloadBlob(data,name,type){let blob=data instanceof Blob?data:new Blob([data],{type}),u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=name;document.body.append(a);a.click();setTimeout(()=>{URL.revokeObjectURL(u);a.remove()},1000)}
+function cropEntry(it){
+ if(!it)throw Error('請先選擇裁切框');
+ return [nameSafe(it.name)+'.svg',serialize(sceneSVG(it,false,false,$('compactExport').checked))];
+}
+function saveOneCrop(it){if(!it)return note('請先建立並選取裁切框');return saveEntriesToDestination(()=>[cropEntry(it)],{nameHint:nameSafe(it.name)+'.svg'});}
+function configObject(){return{version:3,source:sourceName,sourceViewBox:bounds,globalAngle,defaults:{hidden:[...defaultHidden]},crops}}
+function configEntry(){return [nameSafe(sourceName.replace(/\.svg$/i,''))+'-crops.json',JSON.stringify(configObject(),null,2)];}
+function saveConfig(){if(!sourceRoot)return note('請先載入 SVG');return saveEntriesToDestination(()=>[configEntry()],{nameHint:configEntry()[0]});}
+function crc32(data){let c=-1;for(const b of data){c^=b;for(let i=0;i<8;i++)c=c>>>1^((c&1)?0xedb88320:0)}return(c^-1)>>>0}
+function zipFiles(files){let enc=new TextEncoder(),parts=[],central=[],offset=0;function u16(n){return[n&255,n>>>8&255]}function u32(n){return[n&255,n>>>8&255,n>>>16&255,n>>>24&255]}for(let[name,content]of files){let nm=enc.encode(name),data=enc.encode(content),crc=crc32(data),local=new Uint8Array([...u32(0x04034b50),...u16(20),...u16(0x0800),...u16(0),...u16(0),...u16(0),...u32(crc),...u32(data.length),...u32(data.length),...u16(nm.length),...u16(0),...nm]);parts.push(local,data);central.push(new Uint8Array([...u32(0x02014b50),...u16(20),...u16(20),...u16(0x0800),...u16(0),...u16(0),...u16(0),...u32(crc),...u32(data.length),...u32(data.length),...u16(nm.length),...u16(0),...u16(0),...u16(0),...u32(0),...u32(offset),...nm]));offset+=local.length+data.length}let size=central.reduce((s,a)=>s+a.length,0),end=new Uint8Array([...u32(0x06054b50),...u16(0),...u16(0),...u16(files.length),...u16(files.length),...u32(size),...u32(offset),...u16(0)]);return new Blob([...parts,...central,end],{type:'application/zip'})}
+// All export actions use the SAME authorized folder. No action silently downloads to Downloads.
+// Directory handles can be structured-cloned into IndexedDB; permission may need renewal.
+let outputDirectory=null,folderBusy=false,folderPermissionHint='';
+function folderAvailable(){return typeof window.showDirectoryPicker==='function'&&window.isSecureContext}
+function savePickerAvailable(){return typeof window.showSaveFilePicker==='function'&&window.isSecureContext}
+function folderDB(){return new Promise((resolve,reject)=>{
+ const r=indexedDB.open('svg-crop-studio-v14',1);
+ r.onupgradeneeded=()=>{if(!r.result.objectStoreNames.contains('settings'))r.result.createObjectStore('settings')};
+ r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error);
+})}
+async function rememberFolder(handle){
+ try{const db=await folderDB();await new Promise((resolve,reject)=>{
+  const tx=db.transaction('settings','readwrite');tx.objectStore('settings').put(handle,'outputDir');
+  tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);
+ });db.close()}catch(e){/* file:// or private browser sessions may not allow durable storage */}
+}
+async function restoreFolder(){
+ try{const db=await folderDB();let h=await new Promise((resolve,reject)=>{
+  const r=db.transaction('settings','readonly').objectStore('settings').get('outputDir');
+  r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)
+ });db.close();if(h&&h.kind==='directory'&&!outputDirectory){outputDirectory=h;folderPermissionHint='（需按儲存重新授權）';updateFolderUI()}}
+ catch(e){/* Do not block editing if IndexedDB is unavailable. */}
+}
+function updateFolderUI(){
+ const label=$('folderLabel');
+ label.textContent=outputDirectory?('📁 '+outputDirectory.name+folderPermissionHint):'首次儲存時選資料夾';
+ label.title=outputDirectory?('目前選擇：「'+outputDirectory.name+'」；所有 SVG、JSON 與 ZIP 均寫入此處。若權限過期，下次儲存會重新詢問。'):'按「選擇位置」指定資料夾，或直接按任一儲存按鈕';
+ for(const id of ['saveFolder','saveSingleFolder','chooseFolder','single','exportZip','save'])$(id).disabled=folderBusy;
+}
+async function chooseOutputFolder(){
+ if(!folderAvailable()){
+  alert('目前瀏覽器不支援直接寫入資料夾。請使用最新版 Chrome／Edge，以本機 HTML、localhost 或 HTTPS 開啟。若仍無法使用，可改用「另存新檔」，或在 Chrome 下載設定中開啟「下載前詢問儲存位置」。');
+  return null;
+ }
+ try{
+  // This call must remain directly triggered by a user click.
+  const opts={id:'svg-crop-output',mode:'readwrite'};
+  if(outputDirectory)opts.startIn=outputDirectory;
+  const dir=await window.showDirectoryPicker(opts);
+  outputDirectory=dir;folderPermissionHint='';updateFolderUI();
+  // Do not make file writes dependent on successfully persisting the handle.
+  rememberFolder(dir);
+  note('已設定資料夾「'+dir.name+'」；往後所有儲存與匯出均使用這個資料夾');
+  return dir;
+ }catch(err){
+  if(err.name==='AbortError')return null;
+  alert('選擇資料夾失敗：'+err.message);return null;
+ }
+}
+async function ensureFolderWritePermission(){
+ if(!outputDirectory)throw Error('請先選擇資料夾');
+ if(typeof outputDirectory.queryPermission==='function'){
+  let permission=await outputDirectory.queryPermission({mode:'readwrite'});
+  if(permission!=='granted')permission=await outputDirectory.requestPermission({mode:'readwrite'});
+  if(permission!=='granted')throw Error('未取得資料夾寫入權限，請重新選擇資料夾或允許存取');
+ }
+ folderPermissionHint='';updateFolderUI();
+}
+async function fileExists(dir,name){try{await dir.getFileHandle(name,{create:false});return true}catch(e){if(e.name==='NotFoundError')return false;throw e}}
+async function writeIntoFolder(dir,name,content){
+ const handle=await dir.getFileHandle(name,{create:true});
+ const writable=await handle.createWritable();
+ try{await writable.write(content);await writable.close()}catch(e){await writable.abort().catch(()=>{});throw e}
+ // Check persisted size, to avoid reporting success on a failed/no-op write.
+ const saved=await handle.getFile(),expected=content instanceof Blob?content.size:new Blob([content]).size;
+ if(saved.size!==expected)throw Error('寫入後大小不符（預期 '+expected+'，實際 '+saved.size+' bytes）');
+}
+function chooserTypes(name){
+ const ext=name.toLowerCase().split('.').pop();
+ if(ext==='svg')return[{description:'SVG 向量圖',accept:{'image/svg+xml':['.svg']}}];
+ if(ext==='json')return[{description:'JSON 裁切設定',accept:{'application/json':['.json']}}];
+ if(ext==='zip')return[{description:'ZIP 壓縮檔',accept:{'application/zip':['.zip']}}];
+ return undefined;
+}
+async function saveWithHandle(handle,content){
+ const writable=await handle.createWritable();
+ try{await writable.write(content);await writable.close()}catch(e){await writable.abort().catch(()=>{});throw e}
+}
+async function manualSave(name,content){
+ if(savePickerAvailable()){
+  const handle=await window.showSaveFilePicker({id:'svg-crop-save',suggestedName:name,types:chooserTypes(name)});
+  await saveWithHandle(handle,content);
+  note('已另存「'+name+'」至你選擇的位置');return true;
+ }
+ if(confirm('此瀏覽器無法指定寫入位置。是否改用瀏覽器一般下載？\n若要每次選擇位置，可在 Chrome／Edge 下載設定開啟「下載前詢問儲存位置」。')){
+  downloadBlob(content,name,'application/octet-stream');note('已交由瀏覽器下載「'+name+'」');return true;
+ }
+ return false;
+}
+function checkEntries(entries){
+ if(!Array.isArray(entries)||!entries.length)throw Error('沒有可儲存的檔案');
+ if(new Set(entries.map(e=>e[0].toLowerCase())).size!==entries.length)throw Error('輸出檔名重複，請先修改裁切圖名稱');
+ return entries;
+}
+// makeEntries is run AFTER getting write permission, so large SVG rendering does not
+// interfere with the picker/requestPermission user-activation requirements.
+async function saveEntriesToDestination(makeEntries,{forceSaveAs=false,nameHint=null}={}){
+ if(folderBusy)return;
+ if(!sourceRoot){note('請先載入 SVG');return}
+ if(!forceSaveAs&&folderAvailable()&&!outputDirectory){
+  const dir=await chooseOutputFolder();if(!dir)return;
+ }
+ folderBusy=true;updateFolderUI();
+ try{
+  // File Save dialog must open before generating large SVGs, to retain user activation.
+  if((forceSaveAs||!outputDirectory)&&savePickerAvailable()&&nameHint){
+   const handle=await window.showSaveFilePicker({id:'svg-crop-save',suggestedName:nameHint,types:chooserTypes(nameHint)});
+   const entries=checkEntries(makeEntries());
+   if(entries.length!==1)throw Error('單一檔案另存模式只接受一個輸出檔');
+   await saveWithHandle(handle,entries[0][1]);
+   note('已另存「'+nameHint+'」至你選擇的位置');return;
+  }
+  // Request permission near the user-initiated event, before serializing SVG.
+  if(!forceSaveAs&&outputDirectory)await ensureFolderWritePermission();
+  const entries=checkEntries(makeEntries());
+  if(forceSaveAs||!outputDirectory){
+   if(entries.length!==1)throw Error('無法使用單一檔案另存功能輸出多個檔案');
+   await manualSave(entries[0][0],entries[0][1]);return;
+  }
+  const exists=[];
+  for(const [name] of entries){if(await fileExists(outputDirectory,name))exists.push(name)}
+  if(exists.length){
+   const shown=exists.slice(0,5).join('、')+(exists.length>5?' 等 '+exists.length+' 個檔案':'');
+   if(!confirm('資料夾「'+outputDirectory.name+'」已有 '+exists.length+' 個同名檔案（'+shown+'）。\n按「確定」將覆寫，取消則停止儲存。'))return;
+  }
+  const failed=[];let wrote=0;
+  for(const [name,content] of entries){try{await writeIntoFolder(outputDirectory,name,content);wrote++}catch(e){failed.push(name+'：'+e.message)}}
+  if(failed.length)alert('已儲存 '+wrote+' 個檔案，失敗 '+failed.length+' 個：\n'+failed.join('\n'));
+  else note('✓ 已儲存 '+wrote+' 個檔案到「'+outputDirectory.name+'」');
+ }catch(err){if(err.name!=='AbortError')alert('儲存失敗：'+err.message+'\n沒有切換成一般下載。必要時可重新選擇資料夾，或使用「另存新檔」。')}
+ finally{folderBusy=false;updateFolderUI()}
+}
+function buildAllCropEntries(){
+ if(!crops.length)throw Error('請先建立裁切框');
+ return [...crops.map(cropEntry),['crops.json',JSON.stringify(configObject(),null,2)]];
+}
+function saveCropsToFolder(onlySelected=false){
+ if(onlySelected)return saveOneCrop(crops[selected]);
+ if(!folderAvailable()&&!outputDirectory)return batch(); // Without a directory API, save one ZIP via file picker.
+ return saveEntriesToDestination(buildAllCropEntries);
+}
+function batch(){
+ if(!crops.length)return note('請先建立裁切框');
+ return saveEntriesToDestination(()=>{
+  const entries=buildAllCropEntries();
+  return [[nameSafe(sourceName.replace(/\.svg$/i,''))+'-crops.zip',zipFiles(entries)]];
+ },{nameHint:nameSafe(sourceName.replace(/\.svg$/i,''))+'-crops.zip'});
+}
+function saveOneCropAs(it){if(!it)return note('請先建立並選取裁切框');return saveEntriesToDestination(()=>[cropEntry(it)],{forceSaveAs:true,nameHint:nameSafe(it.name)+'.svg'})}
+function coords(e){let r=$('viewer').getBoundingClientRect();return{x:(e.clientX-r.left-ox)/zoom+bounds.x,y:(e.clientY-r.top-oy)/zoom+bounds.y}}
+function px(e){let r=$('viewer').getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top}}
+function hitTest(p){
+ const pad=8/zoom;
+ if(selected>=0){let b=getRect(crops[selected]);if(b){for(let[name,q]of Object.entries(handles(b))){if(Math.abs(p.x-q.x)<=pad&&Math.abs(p.y-q.y)<=pad)return{kind:'resize',index:selected,handle:name}}}}
+ for(let i=crops.length-1;i>=0;i--){let b=getRect(crops[i]);if(!b)continue;
+  let within=p.x>=b.x-pad&&p.x<=b.x+b.w+pad&&p.y>=b.y-pad&&p.y<=b.y+b.h+pad;
+  if(!within)continue;
+  const edge=Math.min(Math.abs(p.x-b.x),Math.abs(p.x-b.x-b.w),Math.abs(p.y-b.y),Math.abs(p.y-b.y-b.h));
+  if(edge<=pad)return{kind:'move',index:i};
+  if(p.x>=b.x&&p.x<=b.x+b.w&&p.y>=b.y&&p.y<=b.y+b.h)return{kind:'inside',index:i};
+ }
+ return null;
+}
+function resizeFrom(b,h,dx,dy){let left=b.x,top=b.y,right=b.x+b.w,bottom=b.y+b.h;if(h.includes('w'))left=Math.min(right-1,left+dx);if(h.includes('e'))right=Math.max(left+1,right+dx);if(h.includes('n'))top=Math.min(bottom-1,top+dy);if(h.includes('s'))bottom=Math.max(top+1,bottom+dy);return{x:left,y:top,w:right-left,h:bottom-top}}
+function startPan(e){let sp=px(e);drag={kind:'pan',x:sp.x,y:sp.y,ox,oy};$('viewer').classList.add('panning');$('viewer').setPointerCapture(e.pointerId)}
+$('viewer').addEventListener('pointerdown',e=>{if(!sourceRoot||e.button>1||e.target.closest('input,button'))return;let p=coords(e);
+ if(space||e.button===1){startPan(e);return}
+ if(toolMode==='rect'){drag={kind:'draw',p,current:p};$('viewer').setPointerCapture(e.pointerId);return}
+ let hit=hitTest(p);
+ // Shift selects the enclosing named group; Alt selects the smallest SVG element. Both bypass the crop box.
+ if(hit&&!e.altKey&&!e.shiftKey){
+  if(selected!==hit.index){selected=hit.index;renderAll()}
+  if(hit.kind==='inside'){startPan(e);return}
+  drag={...hit,start:p,orig:rectCopy(getRect(crops[hit.index]))};$('viewer').setPointerCapture(e.pointerId);return;
+ }
+ let el=e.target.closest('[data-crop-key]');if((e.shiftKey||e.altKey)&&el&&stageArt?.contains(el)){selectGraphicKey(el.getAttribute('data-crop-key'),e.altKey);return}
+ startPan(e);
+});
+$('viewer').addEventListener('pointermove',e=>{if(!sourceRoot)return;
+ if(!drag){if(toolMode==='select'){
+   let h=hitTest(coords(e));$('viewer').style.cursor=h?.kind==='resize'?(({nw:'nwse-resize',se:'nwse-resize',ne:'nesw-resize',sw:'nesw-resize',n:'ns-resize',s:'ns-resize',e:'ew-resize',w:'ew-resize'})[h.handle]):h?.kind==='move'?'move':'grab'
+ }return}
+ if(drag.kind==='pan'){let sp=px(e);ox=drag.ox+sp.x-drag.x;oy=drag.oy+sp.y-drag.y;position();return}
+ let p=coords(e),dx=p.x-drag.start?.x,dy=p.y-drag.start?.y;
+ if(drag.kind==='draw'){drag.current=p;renderOverlay();let r={x:Math.min(drag.p.x,p.x),y:Math.min(drag.p.y,p.y),w:Math.abs(drag.p.x-p.x),h:Math.abs(drag.p.y-p.y)};let box=document.createElementNS(NS,'rect');for(const[k,v]of Object.entries({x:r.x,y:r.y,width:r.w,height:r.h}))box.setAttribute(k,v);box.setAttribute('class','crop active');overlay.append(box);return}
+ let it=crops[drag.index];if(drag.kind==='move'){changeRect(it,{...drag.orig,x:drag.orig.x+dx,y:drag.orig.y+dy})}else if(drag.kind==='resize'){changeRect(it,resizeFrom(drag.orig,drag.handle,dx,dy))}
+ renderOverlay();let b=getRect(it);if(b){for(const[k,v]of Object.entries({x:b.x,y:b.y,w:b.w,h:b.h}))$('g'+k).value=round(v)}
+});
+$('viewer').addEventListener('pointerup',e=>{if(!drag)return;let d=drag;drag=null;$('viewer').classList.remove('panning');
+ if(d.kind==='draw'){let p=coords(e),r={x:Math.min(d.p.x,p.x),y:Math.min(d.p.y,p.y),w:Math.abs(d.p.x-p.x),h:Math.abs(d.p.y-p.y)};if(r.w>3/zoom&&r.h>3/zoom)addCrop('rectangle',r);else renderOverlay()}
+ else if(d.kind==='move'||d.kind==='resize')renderAll();
+});
+$('viewer').addEventListener('pointercancel',()=>{drag=null;$('viewer').classList.remove('panning');renderOverlay()});
+$('viewer').addEventListener('wheel',e=>{if(!sourceRoot)return;e.preventDefault();let p=px(e),f=e.deltaY<0?1.13:1/1.13,z=Math.max(.025,Math.min(35,zoom*f));ox=p.x-(p.x-ox)*z/zoom;oy=p.y-(p.y-oy)*z/zoom;zoom=z;position();renderOverlay()},{passive:false});
+document.addEventListener('keydown',e=>{const typing=['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName);if(e.code==='Space'&&!typing){space=true;e.preventDefault()}if(!typing&&!e.ctrlKey&&!e.altKey&&!e.metaKey){if(e.key.toLowerCase()==='v'){setMode('select');return}if(e.key.toLowerCase()==='r'){setMode('rect');return}}if(typing||!crops[selected])return;if(e.key==='Delete'){crops.splice(selected,1);selected=crops.length?Math.min(selected,crops.length-1):-1;renderAll();e.preventDefault()}if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key)){let r=getRect(crops[selected]),v=e.shiftKey?10:1;changeRect(crops[selected],{...r,x:r.x+({ArrowLeft:-v,ArrowRight:v}[e.key]||0),y:r.y+({ArrowUp:-v,ArrowDown:v}[e.key]||0)});renderAll();e.preventDefault()}});document.addEventListener('keyup',e=>{if(e.code==='Space')space=false});
+$('file').onchange=async e=>{let f=e.target.files[0];if(f)loadSVG(await f.text(),f.name);e.target.value=''};
+$('jsonfile').onchange=async e=>{try{let f=e.target.files[0];if(!f)return;let c=JSON.parse(await f.text());if(!Array.isArray(c.crops))throw Error('缺少 crops 清單');if(c.source&&sourceName&&c.source!==sourceName&&!confirm('此設定檔原本對應 '+c.source+'，確定仍要載入？'))return;
+ if(c.sourceViewBox&&sourceRoot&&JSON.stringify(Object.values(c.sourceViewBox))!==JSON.stringify(Object.values(bounds)))alert('注意：新 SVG 的 viewBox 與儲存設定不同，固定裁切框可能會偏移。');
+ hideUndo=new WeakMap();defaultHidden=new Set(c.defaults?.hidden||[]);
+ globalAngle=Math.max(-360,Math.min(360,num(c.globalAngle)));
+ crops=c.crops.map((it,i)=>{
+   const legacy=!('angleOverride' in it),oldAngle=num(it.angle);
+   const override=legacy?(Math.abs(oldAngle)>0.000001?oldAngle:null):(it.angleOverride==null?null:num(it.angleOverride));
+   return {...it,name:nameSafe(it.name||'crop-'+(i+1)),angleOverride:override,rotationPivot:legacy&&override!=null?'crop':(it.rotationPivot||'source'),hidden:Array.isArray(it.hidden)?it.hidden:[],dx:num(it.dx),dy:num(it.dy),panX:num(it.panX),panY:num(it.panY),manualW:it.manualW??null,manualH:it.manualH??null};
+ });
+ selected=crops.length?0:-1;syncGlobalAngleUI();renderAll();note('已載入 '+crops.length+' 張裁切設定'+(c.version<3?'；舊版旋轉角度已轉為單張覆寫':''))}catch(err){alert('讀取 JSON 失敗：'+err.message)}e.target.value=''};
+$('search').oninput=renderTree;$('undoVisibility').onclick=undoVisibility;$('showAll').onclick=()=>changeVisibility(new Set(),'已顯示目前裁切框的全部物件');$('hideTarget').onclick=()=>{if(!targetKey)return note('請先點選要隱藏的群組');let s=hiddenSet();s.add(targetKey);changeVisibility(s,'已隱藏 '+(byKey.get(targetKey)?.label||targetKey))};$('restoreTarget').onclick=()=>{if(!targetKey)return note('請先選取要恢復的群組');restoreHidden(targetKey)};$('pickParent').onclick=()=>stepGraphicGroup(1);$('pickChild').onclick=()=>stepGraphicGroup(-1);
+$('selectMode').onclick=()=>setMode('select');$('rectMode').onclick=()=>setMode('rect');$('addObject').onclick=()=>addCrop('object');$('addFocus').onclick=()=>addCrop('focus');$('fit').onclick=fit;
+$('save').onclick=saveConfig;$('exportZip').onclick=batch;$('chooseFolder').onclick=chooseOutputFolder;$('saveFolder').onclick=()=>saveCropsToFolder(false);$('saveSingleFolder').onclick=()=>saveOneCropAs(crops[selected]);$('single').onclick=()=>saveOneCrop(crops[selected]);
+// Text/numeric changes auto-commit on blur or Enter; a pending number is never applied mid-typing.
+for(const id of ['cropName','gx','gy','gw','gh','padding']){
+ $(id).addEventListener('change',()=>commitCropField(id==='cropName'?'name':id));
+ $(id).addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();e.target.blur()} });
+}
+$('cropMode').onchange=()=>{$('paddingLine').style.display=$('cropMode').value==='rectangle'?'none':'block'};
+$('sizeOverlay').addEventListener('pointerdown',e=>e.stopPropagation());
+$('sizeOverlay').addEventListener('pointermove',e=>e.stopPropagation());
+for(const [id,key] of [['directW','w'],['directH','h']]){
+ $(id).addEventListener('change',()=>applyDirectDimension(key));
+ $(id).addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();e.target.blur()} e.stopPropagation()});
+}
+updateFolderUI();restoreFolder();
+$('globalAngleSlider').oninput=e=>setGlobalRotation(e.target.value);
+$('globalAngle').onchange=e=>setGlobalRotation(e.target.value);
+$('globalRotateL').onclick=()=>setGlobalRotation(globalAngle-90);
+$('globalRotateR').onclick=()=>setGlobalRotation(globalAngle+90);
+$('globalRotateReset').onclick=()=>setGlobalRotation(0);
+$('cropRotationOverride').onchange=e=>setCropRotationOverride(e.target.checked);
+$('angleSlider').oninput=e=>rotateTo(e.target.value);
+$('angle').onchange=e=>rotateTo(e.target.value);
+$('rotateL').onclick=()=>rotateTo(effectiveAngle(crops[selected])-90);
+$('rotateR').onclick=()=>rotateTo(effectiveAngle(crops[selected])+90);
+$('rotateReset').onclick=()=>rotateTo(0);
+
+
+// — v10 workspace panel manager — independent from the SVG geometry/export engine.
+const WORKSPACE_KEY='svg-crop-studio-workspace-v10';
+const ws=$('workspace');
+const paneDefs={layers:{id:'paneLayers',toolbar:'toggleLayers',w:330,h:590},canvas:{id:'paneCanvas',toolbar:'toggleCanvas',w:810,h:620},settings:{id:'paneSettings',toolbar:'toggleSettings',w:358,h:640}};
+const panels=Object.fromEntries(Object.entries(paneDefs).map(([key,def])=>[key,{...def,el:$(def.id),floating:false,hidden:false}]));
+let floatFront=70;
+function panelOf(id){return Object.values(panels).find(p=>p.id===id)}
+function updateWorkspaceUI(){
+  const lhs=panels.layers.hidden||panels.layers.floating;
+  const rhs=panels.settings.hidden||panels.settings.floating;
+  ws.classList.toggle('is-layers-inactive',lhs);
+  ws.classList.toggle('is-settings-inactive',rhs);
+  $('canvasPlaceholder').hidden=!(panels.canvas.floating||panels.canvas.hidden);
+  $('canvasPlaceholder').querySelector('strong').textContent=panels.canvas.hidden?'SVG 圖面已暫時隱藏':'SVG 圖面已移至浮動視窗';
+  $('returnCanvas').textContent=panels.canvas.hidden?'顯示圖面':'將圖面放回工作區';
+  $('dockCanvasTop').hidden=!(panels.canvas.floating||panels.canvas.hidden);
+  for(const p of Object.values(panels)){
+    p.el.classList.toggle('panel-hidden',p.hidden);
+    p.el.classList.toggle('floating',p.floating);
+    p.el.querySelector('[data-undock]').textContent=p.floating?'▣':'↗';
+    p.el.querySelector('[data-undock]').title=p.floating?'固定回工作區':'移到浮動視窗';
+    if(p.toolbar){const t=$(p.toolbar);t.classList.toggle('on',!p.hidden);t.setAttribute('aria-pressed',String(!p.hidden))}
+  }
+  if(typeof position==='function'&&sourceRoot){position();}
+}
+function saveWorkspace(){
+  const data={left:parseInt(ws.style.getPropertyValue('--left-w'))||275,right:parseInt(ws.style.getPropertyValue('--right-w'))||324,panels:{}};
+  for(const [key,p] of Object.entries(panels)){
+    const r=p.el.getBoundingClientRect();
+    data.panels[key]={floating:p.floating,hidden:p.hidden,left:parseFloat(p.el.style.left)||r.left,top:parseFloat(p.el.style.top)||r.top,width:parseFloat(p.el.style.width)||r.width,height:parseFloat(p.el.style.height)||r.height};
+  }
+  try{localStorage.setItem(WORKSPACE_KEY,JSON.stringify(data))}catch{}
+}
+function raisePane(p){for(const other of Object.values(panels))other.el.classList.remove('is-active');p.el.classList.add('is-active');p.el.style.zIndex=String(++floatFront)}
+function floatPane(p, rect){
+  const r=rect||p.el.getBoundingClientRect();
+  p.hidden=false;p.floating=true;
+  const minW=p.id==='paneCanvas'?400:260;
+  p.el.style.width=Math.max(minW,Math.min(p.w,window.innerWidth-25))+'px';
+  p.el.style.height=Math.max(260,Math.min(p.h,window.innerHeight-55))+'px';
+  p.el.style.left=Math.max(4,Math.min(r.left,window.innerWidth-Math.min(p.w,window.innerWidth-25)-8))+'px';
+  p.el.style.top=Math.max(4,Math.min(r.top,window.innerHeight-Math.min(p.h,window.innerHeight-55)-8))+'px';
+  updateWorkspaceUI();raisePane(p);
+}
+function dockPane(p){
+  p.floating=false;p.hidden=false;
+  p.el.style.removeProperty('width');p.el.style.removeProperty('height');p.el.style.removeProperty('left');p.el.style.removeProperty('top');p.el.style.removeProperty('z-index');
+  updateWorkspaceUI();saveWorkspace();
+}
+function togglePane(p){
+  p.hidden=!p.hidden;if(!p.hidden&&p.floating)raisePane(p);
+  updateWorkspaceUI();saveWorkspace();
+}
+for(const p of Object.values(panels)){
+  p.el.addEventListener('pointerdown',()=>{if(p.floating)raisePane(p)},true);
+  const head=p.el.querySelector('.head');
+  const floatButton=head.querySelector('[data-undock]');
+  floatButton.addEventListener('click',()=>{if(p.floating)dockPane(p);else{floatPane(p);saveWorkspace()}});
+  head.querySelector('[data-hide]').addEventListener('click',()=>togglePane(p));
+  let titleDrag=null;
+  head.addEventListener('pointerdown',e=>{
+    if(e.button!==0||e.target.closest('button,input,.tag'))return;
+    const r=p.el.getBoundingClientRect();
+    titleDrag={startX:e.clientX,startY:e.clientY,origLeft:r.left,origTop:r.top,origR:r,started:false,pointerId:e.pointerId};
+    head.setPointerCapture(e.pointerId);e.preventDefault();
+  });
+  head.addEventListener('pointermove',e=>{
+    if(!titleDrag)return;
+    const dx=e.clientX-titleDrag.startX,dy=e.clientY-titleDrag.startY;
+    if(!titleDrag.started&&(Math.abs(dx)+Math.abs(dy))<5)return;
+    if(!titleDrag.started){
+      if(!p.floating)floatPane(p,titleDrag.origR);
+      titleDrag.started=true;raisePane(p);
+    }
+    p.el.style.left=Math.max(2,Math.min(Math.max(2,window.innerWidth-p.el.offsetWidth-8),titleDrag.origLeft+dx))+'px';
+    p.el.style.top=Math.max(2,Math.min(Math.max(2,window.innerHeight-p.el.offsetHeight-8),titleDrag.origTop+dy))+'px';
+  });
+  const stop=()=>{if(titleDrag?.started)saveWorkspace();titleDrag=null};
+  head.addEventListener('pointerup',stop);head.addEventListener('pointercancel',stop);
+  p.el.addEventListener('pointerup',()=>{if(p.floating)saveWorkspace()});
+  // A real drag handle for resizing: CSS-native resize grips are difficult to hit on dense SVG canvases.
+  const grip=document.createElement('div');grip.className='float-resizer';grip.title='拖曳改變浮動視窗寬度與高度';p.el.append(grip);
+  let resizeState=null;
+  grip.addEventListener('pointerdown',e=>{
+    if(!p.floating||e.button!==0)return;
+    e.preventDefault();e.stopPropagation();raisePane(p);
+    resizeState={x:e.clientX,y:e.clientY,w:p.el.getBoundingClientRect().width,h:p.el.getBoundingClientRect().height,left:p.el.getBoundingClientRect().left,top:p.el.getBoundingClientRect().top};
+    grip.setPointerCapture(e.pointerId);
+  });
+  grip.addEventListener('pointermove',e=>{
+    if(!resizeState)return;
+    p.el.style.width=Math.max(p.id==='paneCanvas'?410:260,Math.min(window.innerWidth-resizeState.left-8,resizeState.w+e.clientX-resizeState.x))+'px';
+    p.el.style.height=Math.max(240,Math.min(window.innerHeight-resizeState.top-8,resizeState.h+e.clientY-resizeState.y))+'px';
+    if(sourceRoot&&p.id==='paneCanvas')position();
+  });
+  const endResize=()=>{if(resizeState)saveWorkspace();resizeState=null};
+  grip.addEventListener('pointerup',endResize);grip.addEventListener('pointercancel',endResize);
+  // CSS resize: both works when floating. Save the size after a real resize.
+  if(typeof ResizeObserver!=='undefined')new ResizeObserver(()=>{
+    if(p.floating&&sourceRoot){if(p.id==='paneCanvas')position();else if(p.id==='paneSettings')positionSizeOverlay()}
+  }).observe(p.el);
+}
+$('toggleLayers').onclick=()=>togglePane(panels.layers);
+$('toggleCanvas').onclick=()=>togglePane(panels.canvas);
+$('toggleSettings').onclick=()=>togglePane(panels.settings);
+$('returnCanvas').onclick=()=>dockPane(panels.canvas);
+$('dockCanvasTop').onclick=()=>dockPane(panels.canvas);
+$('resetWorkspace').onclick=()=>{
+  for(const p of Object.values(panels)){p.hidden=false;p.floating=false;p.el.style.cssText=''}
+  ws.style.setProperty('--left-w','275px');ws.style.setProperty('--right-w','324px');
+  updateWorkspaceUI();saveWorkspace();note('已還原預設工作區');
+};
+// Independent workspace splitters, with pointer capture (no accidental crop editing).
+function setupSplitter(id,which){
+ const el=$(id);let down=null;
+ el.addEventListener('pointerdown',e=>{
+  if(e.button!==0)return;
+  e.preventDefault();down={x:e.clientX,left:ws.querySelector('#paneLayers').getBoundingClientRect().width,right:ws.querySelector('#paneSettings').getBoundingClientRect().width};
+  el.setPointerCapture(e.pointerId);el.classList.add('is-dragging');
+ });
+ el.addEventListener('pointermove',e=>{
+  if(!down)return;
+  const delta=e.clientX-down.x;
+  const total=ws.clientWidth;
+  const inactiveLeft=panels.layers.hidden||panels.layers.floating;
+  const inactiveRight=panels.settings.hidden||panels.settings.floating;
+  const reserve=300;
+  if(which==='left'){
+    const other=inactiveRight?0:down.right;
+    ws.style.setProperty('--left-w',Math.max(175,Math.min(540,Math.max(175,total-other-reserve-22),down.left+delta))+'px');
+  }else{
+    const other=inactiveLeft?0:down.left;
+    ws.style.setProperty('--right-w',Math.max(230,Math.min(590,Math.max(230,total-other-reserve-22),down.right-delta))+'px');
+  }
+  if(sourceRoot)position();
+ });
+ const stop=()=>{if(down)saveWorkspace();down=null;el.classList.remove('is-dragging')};
+ el.addEventListener('pointerup',stop);el.addEventListener('pointercancel',stop);
+}
+setupSplitter('splitLeft','left');setupSplitter('splitRight','right');
+// Header and toolbars may wrap: keep canvas height exactly matched to remaining viewport.
+function measureBars(){const total=document.querySelector('.topbar').offsetHeight+$('toolbar').offsetHeight;document.documentElement.style.setProperty('--bar-h',total+'px')}
+if(typeof ResizeObserver!=='undefined'){
+  let resizePending=false;
+  const obs=new ResizeObserver(()=>{if(resizePending)return;resizePending=true;requestAnimationFrame(()=>{resizePending=false;measureBars()})});
+  obs.observe(document.querySelector('.topbar'));obs.observe($('toolbar'));
+}
+function loadWorkspace(){
+ try{
+  const data=JSON.parse(localStorage.getItem(WORKSPACE_KEY)||'null');
+  if(data){
+   ws.style.setProperty('--left-w',Math.max(175,Math.min(540,Number(data.left)||275))+'px');
+   ws.style.setProperty('--right-w',Math.max(230,Math.min(590,Number(data.right)||324))+'px');
+   for(const [key,prop] of Object.entries(data.panels||{})){
+    const p=panels[key];if(!p)continue;
+    p.hidden=!!prop.hidden;
+    if(prop.floating){
+      floatPane(p,{left:prop.left||35,top:prop.top||90,width:prop.width||p.w,height:prop.height||p.h});
+      p.el.style.width=Math.min(Math.max(260,Number(prop.width)||p.w),window.innerWidth-20)+'px';
+      p.el.style.height=Math.min(Math.max(240,Number(prop.height)||p.h),window.innerHeight-20)+'px';
+      p.el.style.left=Math.max(2,Math.min(Math.max(2,window.innerWidth-p.el.offsetWidth-8),Number(prop.left)||35))+'px';
+      p.el.style.top=Math.max(2,Math.min(Math.max(2,window.innerHeight-p.el.offsetHeight-8),Number(prop.top)||90))+'px';
+    }
+   }
+  }
+ }catch(e){console.warn('無法還原工作區',e)}
+ updateWorkspaceUI();measureBars();
+}
+loadWorkspace();
+// Save right panel open/closed preferences without touching the crop JSON.
+const ACCORDION_KEY='svgCropStudioAccordionsV12';
+const accordionIds=['globalRotationBlock','cropListSection','cropBasicsSection','cropRotationSection','cropPreviewSection'];
+try{
+  const saved=JSON.parse(localStorage.getItem(ACCORDION_KEY)||'null');
+  if(saved)for(const id of accordionIds){if(typeof saved[id]==='boolean')$(id).open=saved[id]}
+}catch(e){console.warn('未能還原設定面板收合狀態',e)}
+for(const id of accordionIds){$(id).addEventListener('toggle',()=>{
+  try{const value={};for(const key of accordionIds)value[key]=$(key).open;localStorage.setItem(ACCORDION_KEY,JSON.stringify(value))}catch(e){}
+})}
+</script></body></html>
