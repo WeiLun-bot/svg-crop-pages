@@ -12,8 +12,8 @@ import { defaultTargets } from '../server/targets.mjs';
 test('collaborator can choose an existing chapter, review replacements and upload; conflicts preserve edits', { timeout: 40000 }, async t => {
   const edge = process.env.EDGE_PATH || 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe';
   try { await access(edge); } catch { t.skip('Set EDGE_PATH to run the browser integration test.'); return; }
-  const calls = [], pageErrors = [];
-  let conflict = false, forbidFolder = false, writes = 0;
+  const calls = [], pageErrors = [], fileConfigRequests = [];
+  let conflict = false, forbidFolder = false, writes = 0, configMode = 'ok', ready = true;
   const assets = new Map([
     ['/', ['index.html', 'text/html; charset=utf-8']],
     ['/github-upload.js', ['github-upload.js', 'text/javascript; charset=utf-8']],
@@ -24,12 +24,18 @@ test('collaborator can choose an existing chapter, review replacements and uploa
     try {
       const url = new URL(req.url, 'http://localhost');
       const send = (value, status = 200) => { res.writeHead(status, { 'Content-Type': 'application/json' }); res.end(JSON.stringify(value)); };
+      if (url.pathname === '/github-config.json') {
+        if (configMode === 'disconnect') { res.destroy(); return; }
+        if (configMode === 'missing') { send({}, 404); return; }
+        if (configMode === 'malformed') { res.writeHead(200, { 'Content-Type': 'application/json' }); res.end('{'); return; }
+        if (configMode === 'invalid') { send({ backendOrigin: {} }); return; }
+      }
       if (assets.has(url.pathname)) {
         const [file, type] = assets.get(url.pathname);
         res.writeHead(200, { 'Content-Type': type }); res.end(await readFile(new URL('../' + file, import.meta.url))); return;
       }
       const path = url.pathname.replace('/api/github', '');
-      if (path === '/status') { send({ ready: true }); return; }
+      if (path === '/status') { send({ ready }); return; }
       if (path === '/auth/login') {
         const payload = JSON.stringify({ type: 'svg-github-login', nonce: url.searchParams.get('nonce'), session: 'test-browser-session' });
         res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
@@ -77,6 +83,7 @@ test('collaborator can choose an existing chapter, review replacements and uploa
     const data = JSON.parse(event.data);
     if (data.id && pending.has(data.id)) { const task = pending.get(data.id); pending.delete(data.id); data.error ? task.reject(Error(data.error.message)) : task.resolve(data.result); }
     if (data.method === 'Runtime.exceptionThrown') pageErrors.push(data.params.exceptionDetails.text + ': ' + (data.params.exceptionDetails.exception?.description || ''));
+    if (data.method === 'Network.requestWillBeSent' && data.params.request.url.startsWith('file:') && data.params.request.url.endsWith('/github-config.json')) fileConfigRequests.push(data.params.request.url);
   });
   const command = (method, params = {}) => new Promise((resolve, reject) => { const id = ++nextId; pending.set(id, { resolve, reject }); socket.send(JSON.stringify({ id, method, params })); });
   async function evaluate(expression) {
@@ -84,8 +91,37 @@ test('collaborator can choose an existing chapter, review replacements and uploa
     if (result.exceptionDetails) throw Error(result.exceptionDetails.exception?.description || result.exceptionDetails.text);
     return result.result.value;
   }
-  await command('Runtime.enable'); await command('Page.enable');
+  await command('Runtime.enable'); await command('Page.enable'); await command('Network.enable');
   await command('Emulation.setDeviceMetricsOverride', { width: 1440, height: 960, deviceScaleFactor: 1, mobile: false });
+  await t.test('opening the local HTML explains the limitation without making a blocked file fetch', async () => {
+    await command('Page.navigate', { url: new URL('../index.html', import.meta.url).href });
+    await until(() => evaluate('typeof loadSVG === "function" && !!document.getElementById("githubUpload").onclick'));
+    await evaluate('loadSVG(\'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="50" height="50"/></svg>\',"本機原圖.svg");addCrop("rectangle",{x:0,y:0,w:50,h:50});document.getElementById("githubUpload").click()');
+    await until(() => evaluate('document.getElementById("githubStatus").textContent.includes("本機檔案")'));
+    assert.equal(await evaluate('document.getElementById("githubSignIn").disabled && document.getElementById("githubPreview").disabled'), true);
+    assert.equal(await evaluate('crops.length'), 1, 'local cropping still works');
+    assert.deepEqual(fileConfigRequests, []);
+  });
+  for (const [mode, expected] of [['disconnect', '請檢查網路連線'], ['missing', '完整部署'], ['malformed', '設定格式無效'], ['invalid', '設定格式無效']]) {
+    await t.test('configuration problem ' + mode + ' keeps login disabled and explains the cause', async () => {
+      configMode = mode;
+      await command('Page.navigate', { url: origin + '/' });
+      await until(() => evaluate('!!document.getElementById("githubUpload")?.onclick'));
+      await evaluate('document.getElementById("githubUpload").click()');
+      await until(() => evaluate('document.getElementById("githubStatus").textContent.includes(' + JSON.stringify(expected) + ')'));
+      assert.equal(await evaluate('document.getElementById("githubSignIn").disabled'), true);
+      assert.equal(await evaluate('document.getElementById("githubStatus").textContent.includes("Failed to fetch")'), false);
+    });
+  }
+  configMode = 'ok'; ready = false;
+  await t.test('an unready backend does not enable the login button', async () => {
+    await command('Page.navigate', { url: origin + '/' });
+    await until(() => evaluate('!!document.getElementById("githubUpload")?.onclick'));
+    await evaluate('document.getElementById("githubUpload").click()');
+    await until(() => evaluate('document.getElementById("githubStatus").textContent.includes("尚未啟用")'));
+    assert.equal(await evaluate('document.getElementById("githubSignIn").disabled'), true);
+  });
+  ready = true;
   await command('Page.navigate', { url: origin + '/' });
   await until(() => evaluate('typeof loadSVG === "function" && !!document.getElementById("githubUpload").onclick'));
   await evaluate('loadSVG(\'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120"><rect x="10" y="10" width="120" height="80" fill="teal"/></svg>\',"原圖.svg"); addCrop("rectangle",{x:0,y:0,w:150,h:100}); crops[0].name="路口裁切";renderAll();document.getElementById("githubUpload").click()');

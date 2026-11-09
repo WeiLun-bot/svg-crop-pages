@@ -49,16 +49,28 @@
   }
   async function initialize() {
     if (initialized) return;
-    const response = await fetch(new URL('github-config.json', document.baseURI), { cache: 'no-store' });
-    if (!response.ok) throw Error('無法讀取上傳位置設定。');
-    const config = await response.json();
+    if (location.protocol === 'file:') {
+      message('目前是直接開啟的本機檔案，可繼續裁切與儲存到電腦。\nGitHub 登入上傳需要先啟用服務，再透過網站網址開啟。', true);
+      controls(); return;
+    }
+    let response;
+    try {
+      response = await fetch(new URL('github-config.json', document.baseURI), { cache: 'no-store', signal: AbortSignal.timeout(15000) });
+    } catch { throw Error('無法讀取 GitHub 上傳設定，請檢查網路連線後重新開啟此視窗。'); }
+    if (!response.ok) throw Error('找不到 GitHub 上傳設定，請聯絡管理者確認網站檔案已完整部署。');
+    let config;
+    try { config = await response.json(); } catch { throw Error('GitHub 上傳設定格式無效，請聯絡管理者。'); }
+    if (!config || typeof config !== 'object' || Array.isArray(config) || (config.backendOrigin !== undefined && typeof config.backendOrigin !== 'string')) throw Error('GitHub 上傳設定格式無效，請聯絡管理者。');
     const local = ['localhost', '127.0.0.1'].includes(location.hostname);
     const configured = config.backendOrigin || ((location.hostname.endsWith('.vercel.app') || local) ? location.origin : '');
     if (!configured) { message('此網站尚未啟用 GitHub 登入上傳，請聯絡管理者。', true); controls(); return; }
-    const url = new URL(configured);
+    let url;
+    try { url = new URL(configured); } catch { throw Error('上傳服務網址設定無效，請聯絡管理者。'); }
     if (url.pathname !== '/' || url.search || url.hash || url.username || url.password || (url.protocol !== 'https:' && !(local && url.protocol === 'http:' && ['localhost', '127.0.0.1'].includes(url.hostname)))) throw Error('上傳服務網址設定無效，請聯絡管理者。');
     backend = url.origin;
-    await api('/status'); initialized = true;
+    const status = await api('/status');
+    if (status?.ready !== true) throw Error('GitHub 登入上傳尚未啟用，請聯絡管理者。');
+    initialized = true;
     message('請使用具有儲存庫寫入權限的 GitHub 帳號登入。'); controls();
   }
   async function browse(nextFolder = '') {
